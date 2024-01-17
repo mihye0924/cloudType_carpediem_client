@@ -47,7 +47,7 @@ const CMain = () => {
     console.log(path,"path")
     await axios({
       method: 'get', 
-      url: `http://localhost:8081/list/profile/${path}` 
+      url: `${import.meta.env.VITE_BACK_URL}/list/profile/${path}` 
     })
     .then(( res ) => { 
       if(res.data.code === 200) {

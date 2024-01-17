@@ -21,7 +21,7 @@ const CMainImageList = () => {
     }
     await axios({
       method: 'get',
-      url: 'http://localhost:8081/list', 
+      url: `${import.meta.env.VITE_BACK_URL}/list`, 
       headers: data
     })
     .then(( res ) => {

@@ -126,7 +126,7 @@ const JoinPage = () => {
     }
     await axios({
       method: "post",
-      url: "http://localhost:8081/user/join",
+      url: `${import.meta.env.VITE_BACK_URL}/user/join`,
       data: data,
       headers: {"Context-Type": "application/json"}
     }).then((response) => { 
@@ -150,7 +150,7 @@ const JoinPage = () => {
     } 
     await axios({
       method: "get",
-      url: "http://localhost:8081/user/idCheck",
+      url: `${import.meta.env.VITE_BACK_URL}/user/idCheck`,
       headers: data
     })
     .then((response) => {  

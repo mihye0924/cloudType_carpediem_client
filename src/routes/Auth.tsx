@@ -24,7 +24,7 @@ function Auth(SpecificComponent: () => JSX.Element, option: null | boolean, admi
   const postData = useCallback(async() => {
     await axios({
       method: "post",
-      url: `http://localhost:8081/auth`,
+      url: `${import.meta.env.VITE_BACK_URL}/auth`,
       data: {
         token: user.token
       },

@@ -34,7 +34,7 @@ const AccountPage = () => {
 
   // 데이터 가져오기
   const postData = useCallback(async() => { 
-    await axios(`http://localhost:8081/account/${user.user_id}`)
+    await axios(`${import.meta.env.VITE_BACK_URL}/account/${user.user_id}`)
     .then(( res ) => {
       if(res.data.code === 200) {
         setResult(res.data.result)  
@@ -84,7 +84,7 @@ const AccountPage = () => {
     
     await axios({
       method:'post',
-      url:'http://localhost:8081/upload', 
+      url:`${import.meta.env.VITE_BACK_URL}/upload`, 
       headers: { 'Content-Type': 'multipart/form-data' },
       data: formData
     })
@@ -102,7 +102,7 @@ const AccountPage = () => {
   // 닉네임 사용여부
   const handleNickNameCheck = useCallback(async() => { 
     console.log(name,"name")
-    await axios(`http://localhost:8081/account/accountNameCheck/${name}`)
+    await axios(`${import.meta.env.VITE_BACK_URL}/account/accountNameCheck/${name}`)
     .then((res) => {  
       if(res.data.code === 200) {
         alert('사용 가능한 닉네임입니다.')
@@ -124,7 +124,7 @@ const AccountPage = () => {
     } 
     await axios({
       method: 'post',
-      url: 'http://localhost:8081/account/accountCreate',
+      url: `${import.meta.env.VITE_BACK_URL}/accountCreate`,
       data: data,
       headers: {"Context-Type" : "application/json"}
     })
@@ -150,7 +150,7 @@ const AccountPage = () => {
     }
     await axios({
       method: 'delete',
-      url: 'http://localhost:8081/account/accountDelete',
+      url: `${import.meta.env.VITE_BACK_URL}/account/accountDelete`,
       headers: data, 
     })
     .then((res) => {

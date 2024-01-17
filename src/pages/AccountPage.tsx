@@ -190,7 +190,7 @@ const AccountPage = () => {
                         <img src={
                           `${item.account_profile}` === 'profile-dummy.svg' ? 
                           `/assets/images/${item.account_profile}` : 
-                          `/assets/uploads/profile/${item.account_profile}`
+                          `${process.env.VITE_BACK_URL}/public/uploads/profile/${item.account_profile}`
                           } alt="프로필 이미지"/> 
                       </Box>
                       <span>

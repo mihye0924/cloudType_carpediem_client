@@ -144,14 +144,10 @@ const JoinPage = () => {
   }
 
   // 아이디 중복체크
-  const handleIdCheck = async() => {
-    const data = {
-      user_id: id
-    } 
+  const handleIdCheck = async() => { 
     await axios({
       method: "get",
-      url: `${import.meta.env.VITE_BACK_URL}/user/idCheck`,
-      headers: data
+      url: `${import.meta.env.VITE_BACK_URL}/user/${id}`
     })
     .then((response) => {  
       if(response.data.code === 200){

@@ -2,8 +2,7 @@
   "name": "carpediem",
   "private": true,
   "version": "0.0.0",
-  "type": "module",
-  "homepage": "https://mihye0924.github.io/carpeDiem",
+  "type": "module",  
   "scripts": {
     "dev": "vite",
     "build": "tsc && vite build",

@@ -9,7 +9,7 @@ import { RecoilRoot } from 'recoil';
 ReactDOM.createRoot(document.getElementById('root')!).render(
   // <React.StrictMode>
     <RecoilRoot>
-      <BrowserRouter basename='/carpeDiem'>
+      <BrowserRouter>
         <Reset/>
         <App />
       </BrowserRouter> 

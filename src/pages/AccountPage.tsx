@@ -100,9 +100,8 @@ const AccountPage = () => {
   },[setImgIs, setImgSavePath]);
   
   // 닉네임 사용여부
-  const handleNickNameCheck = useCallback(async() => { 
-    console.log(name,"name")
-    await axios(`${import.meta.env.VITE_BACK_URL}/account/accountNameCheck/${name}`)
+  const handleNickNameCheck = useCallback(async() => {  
+    await axios(`${import.meta.env.VITE_BACK_URL}/account/${name}`)
     .then((res) => {  
       if(res.data.code === 200) {
         alert('사용 가능한 닉네임입니다.')
@@ -124,7 +123,7 @@ const AccountPage = () => {
     } 
     await axios({
       method: 'post',
-      url: `${import.meta.env.VITE_BACK_URL}/accountCreate`,
+      url: `${import.meta.env.VITE_BACK_URL}/account/create`,
       data: data,
       headers: {"Context-Type" : "application/json"}
     })
@@ -150,7 +149,7 @@ const AccountPage = () => {
     }
     await axios({
       method: 'delete',
-      url: `${import.meta.env.VITE_BACK_URL}/account/accountDelete`,
+      url: `${import.meta.env.VITE_BACK_URL}/account/delete`,
       headers: data, 
     })
     .then((res) => {

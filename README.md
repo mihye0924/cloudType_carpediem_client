@@ -1,0 +1,2 @@
+# cloudType_carpediem_client
+cloudType_carpedium deploy client

@@ -191,7 +191,7 @@ const AccountPage = () => {
                         <img src={
                           `${item.account_profile}` === 'profile-dummy.svg' ? 
                           `/assets/images/${item.account_profile}` : 
-                          `${import.meta.env.VITE_BACK_URL}/uploads/profile/${item.account_profile}`
+                          `${import.meta.env.VITE_BACK_URL}/app/public/uploads/profile/${item.account_profile}`
                           } alt="프로필 이미지"/> 
                       </Box>
                       <span>
@@ -267,7 +267,7 @@ const AccountPage = () => {
             <img src={
               !imgIs ?
                "/assets/images/profile-dummy.svg": 
-              `${import.meta.env.VITE_BACK_URL}/uploads/profile/${imgSavePath}`} alt="profile"
+              `${import.meta.env.VITE_BACK_URL}/app/public//uploads/profile/${imgSavePath}`} alt="profile"
               /> 
           </Box>   
           {

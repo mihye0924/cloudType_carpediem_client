@@ -85,7 +85,8 @@ const AccountPage = () => {
     await axios({
       method:'post',
       url:`${import.meta.env.VITE_BACK_URL}/upload`, 
-      headers: { 'Content-Type': 'multipart/form-data' },
+      headers: { 'Content-Type': 'multipart/form-data' },  
+      withCredentials: true,
       data: formData
     })
     .then((res) => {

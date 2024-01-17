@@ -90,6 +90,7 @@ const AccountPage = () => {
     })
     .then((res) => {
       if(res.data.success) { 
+        console.log(res.data.imagePath,"res.data.imagePath")
         setImgSavePath(res.data.imagePath)
         setTimeout(() => {
           setImgIs(true)
@@ -266,7 +267,7 @@ const AccountPage = () => {
             <img src={
               !imgIs ?
                "/assets/images/profile-dummy.svg": 
-              `/assets/uploads/profile/${imgSavePath}`} alt="profile"
+              `${process.env.VITE_BACK_URL}/${imgSavePath}`} alt="profile"
               /> 
           </Box>   
           {

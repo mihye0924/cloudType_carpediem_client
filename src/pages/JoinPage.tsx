@@ -124,7 +124,8 @@ const JoinPage = () => {
       method: "post",
       url: `${import.meta.env.VITE_BACK_URL}/user/join`,
       data: data,
-      headers: {"Context-Type": "application/json"}
+      headers: {"Context-Type": "application/json"},
+      withCredentials: true
     }).then((response) => { 
       if(response.data.code === 200) {
         alert('회원가입에 성공하였습니다.') 

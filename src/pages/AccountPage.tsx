@@ -127,7 +127,8 @@ const AccountPage = () => {
       method: 'post',
       url: `${import.meta.env.VITE_BACK_URL}/account/create`,
       data: data,
-      headers: {"Context-Type" : "application/json"}
+      headers: {"Context-Type" : "application/json"},
+      withCredentials: true
     })
     .then((res) => {
       if(res.data.code === 200) {
@@ -152,7 +153,9 @@ const AccountPage = () => {
     await axios({
       method: 'delete',
       url: `${import.meta.env.VITE_BACK_URL}/account/delete`,
-      headers: data, 
+      data: data,
+      headers: {"Context-Type" : "application/json"},
+      withCredentials: true
     })
     .then((res) => {
       if(res.data.code === 200) {

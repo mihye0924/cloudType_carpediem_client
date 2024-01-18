@@ -35,6 +35,7 @@ const LoginPage = () => {
 
   // 로그인 post요청
   const postData = async () => {
+    alert('클릭하였습니다.')
     const data = {
       user_id: id,
       user_pw: pw

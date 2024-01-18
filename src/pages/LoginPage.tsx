@@ -16,11 +16,7 @@ const LoginPage = () => {
 
   const idRef = useRef<HTMLInputElement>(null)
   const pwRef = useRef<HTMLInputElement>(null)
-
-  // 로그인 이벤트
-  const handleLoginEvent = () => {
-    validationCheck()
-  }
+ 
   
   // 유효성 검사
   const validationCheck = () => {
@@ -108,7 +104,7 @@ const LoginPage = () => {
           /> 
         </Box>
         <CButton large type="blue" 
-          onClick={handleLoginEvent}
+          onClick={() => validationCheck()}
           style={{ padding: '10px 0', mt: '10px', height: '45px' }}>
           로그인
         </CButton>

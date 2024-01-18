@@ -44,8 +44,7 @@ const LoginPage = () => {
       method: "post",
       url: `${import.meta.env.VITE_BACK_URL}/user/login`,
       data: data,
-      headers: {"Context-Type" : "application/json"},  
-      withCredentials: true
+      headers: {"Context-Type" : "application/json"}
     })
     .then((res) => {    
       if(res.data.code === 200){

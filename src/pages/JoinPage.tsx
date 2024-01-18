@@ -32,11 +32,7 @@ const JoinPage = () => {
   const [birthText, setBirthText] = useState(false);
   const [phoneText, setPhoneText] = useState(false);
   const [emailText, setEmailText] = useState(false);
- 
-  // 회원가입 이벤트
-  const handleJoinEvent = () => { 
-    validationCheck();   
-  }  
+  
 
   // 유효성 검사
   const validationCheck = () => {
@@ -334,7 +330,7 @@ const JoinPage = () => {
           (!emailText && email.length > 0) &&
           <Box sx={ErrorText}>이메일이 일치하지 않습니다.</Box>
         }
-        <CButton onClick={handleJoinEvent} large type='blue' style={{ mt: '30px', height:'45px' }}>
+        <CButton onClick={() => handleJoinEvent} large type='blue' style={{ mt: '30px', height:'45px' }}>
           회원가입
         </CButton>
       </Box>

@@ -34,7 +34,7 @@ const LoginPage = () => {
       alert('비밀번호를 입력해주세요.')
       return false
     }
-    postData()
+    return postData()
   }
 
   // 로그인 post요청

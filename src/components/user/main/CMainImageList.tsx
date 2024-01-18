@@ -1,60 +1,55 @@
-import { Box, Button, IconButton, List, styled } from "@mui/material"
-import { useCallback, useEffect, useState } from "react" 
+import { Box, Button, IconButton, styled } from "@mui/material"
+import { ChangeEvent, useCallback, useEffect, useState } from "react" 
 import { userState } from "@/recoil/atoms/userState"
-import { useRecoilValue } from "recoil" 
-import axios from "axios"
-import { useLocation } from "react-router"   
+import { useRecoilValue } from "recoil"  
 import { AddAPhotoOutlined, FilterOutlined } from '@mui/icons-material';
 import CModal from "@/components/CModal" 
+import axios from "axios";
 
+// import Swiper core and required modules
+import { Navigation, Pagination, Scrollbar, A11y } from 'swiper/modules';
+import { Swiper, SwiperSlide } from 'swiper/react';
 
-const CMainImageList = () => {
-  const [list, setList] = useState([]); 
+// Import Swiper styles
+import 'swiper/css';
+import 'swiper/css/navigation';
+import 'swiper/css/pagination';
+import 'swiper/css/scrollbar';
+import CButton from "@/components/CButton";
+
+const CMainImageList = () => { 
   const user = useRecoilValue(userState);
-  const [modal, setModal] = useState(false)
-  const path = useLocation().pathname.split('/')[1];  
+  const [modal, setModal] = useState(false) 
+  const [imgSlideList, setImgSlideList] = useState([])
  
+ 
+  const handleChangeFile = useCallback(async(e: ChangeEvent<HTMLInputElement>) => {
+    const formData = new FormData()  
+    const file = e.target.files; 
+    if(!file) return; 
+    for(let i=0; i< file.length; i++) { 
+      formData.append('list', file[i]); 
+    }   
 
-  const postData = useCallback(async() => {
-    const data = { 
-      account_name: path
-    }
-    await axios({
-      method: 'get',
-      url: `${import.meta.env.VITE_BACK_URL}/list`, 
-      headers: data
+     await axios({
+      method:'post',
+      url:`${import.meta.env.VITE_BACK_URL}/list/upload`, 
+      headers: { 'Content-Type': 'multipart/form-data' },  
+      withCredentials: true,
+      data: formData
     })
-    .then(( res ) => {
-      if(res.data.code === 200) {   
-        setList(res.data.result)  
-        return false
-      }else { 
-        setList([])
-        return false
-      }
+    .then((res) => {
+      setImgSlideList(res.data.imagePath) 
     })
-    .catch((err) => console.log(err))
-  },[path])
+    .catch((err) => console.log(err)) 
+  },[]);
 
-  const changeFile = () => {
-
-  }
-  useEffect(() => {  
-    postData() 
-  },[postData])
+  useEffect(() => {   
+  },[])
 
   return (
     <Section className={user.isAuth ? 'logged_in' : 'not_logged_in'}>
-      {  
-        list.length > 0 ?
-        <List sx={ImageList}> 
-          {
-            list.map(() => ( 
-              <p></p>  
-            ))
-          }
-        </List>  
-        :
+      {    
         <NotFound> 
           <Box>
             <IconButton 
@@ -78,22 +73,59 @@ const CMainImageList = () => {
           onClose={() => { setModal(!modal) }}
           open={true}  
         >
-          <Box>
-            <FilterOutlined />
-            <p>사진과 동영상을 여기에 끌어다 놓으세요</p>
-            <Button 
-              component="label" 
-              disableRipple 
-              style={CreateListButton}
-            > 
-              컴퓨터에서 선택
-              <input 
-                hidden  
-                name="attachment" 
-                type="file" 
-                onChange={changeFile} 
-              />  
-            </Button>  
+          <Box sx={{height: '100%'}}>
+            {
+              imgSlideList.length > 0 ? 
+              <SwiperBox>
+                <Swiper 
+                  modules={[Navigation, Pagination, Scrollbar, A11y]} 
+                  slidesPerView={1}  
+                  pagination = {{
+                    el: '.swiper-pagination',
+                    clickable: true,
+                  }}
+                  navigation ={{
+                    nextEl: '.swiper-button-next',
+                    prevEl: '.swiper-button-prev',
+                  }}
+                >
+                {
+                  imgSlideList.map((item: { img: string, id: number}) => {
+                    return( 
+                    <SwiperSlide key={item.id}> 
+                      <img src={`${import.meta.env.VITE_BACK_URL}/uploads/list/${item.img}`} alt=""/> 
+                    </SwiperSlide>
+                    )
+                  })
+                }
+                <Box > 
+                  <div className="swiper-button-prev"></div>
+                  <div className="swiper-button-next"></div>
+                  <div className="swiper-pagination"></div>
+                </Box>
+                </Swiper> 
+                <CButton style={buttonBox} small type="blueBorder">업로드하기</CButton>  
+              </SwiperBox>
+              :
+              <Box sx={imgBox}>
+                <FilterOutlined />
+                <p>사진과 동영상을 여기에 끌어다 놓으세요</p>
+                <Button 
+                  component="label" 
+                  disableRipple 
+                  style={CreateListButton}
+                > 
+                  컴퓨터에서 선택
+                  <input 
+                    hidden  
+                    name="list" 
+                    type="file" 
+                    multiple 
+                    onChange={handleChangeFile} 
+                  />  
+                </Button>  
+              </Box>
+            }
           </Box>
         </CModal>
       }
@@ -126,36 +158,31 @@ const Section = styled('section')(() => ({
       borderRadius: '30px'
     }
 }))
-const ImageList = {
-  position:'relative',
-  display: 'flex',   
-  flexWrap:'wrap',
-  boxSizing: 'border-box', 
-  padding: 0,
-  gap: '10px',
-  margin: '10px',
-  '& li':{ 
-    width: 'calc((100% - 20px)/3)', 
-    padding: 0,
-  },
-  '& button': { 
-    width: '100%',
-    bgcolor: 'transparent', 
-    paddingBottom: '100%',
-  },
-  '& img': {
-    position: 'absolute',
-    top: 0,
-    left: 0,
-    width: '100%',
-    height: 'auto'
-  }
-}
-// const NotFoundImage= styled('div')(() => ({ 
-//   backgroundColor: '#fff',
-//   height: '100%',
-// }))
-
+// const ImageList = {
+//   position:'relative',
+//   display: 'flex',   
+//   flexWrap:'wrap',
+//   boxSizing: 'border-box', 
+//   padding: 0,
+//   gap: '10px',
+//   margin: '10px',
+//   '& li':{ 
+//     width: 'calc((100% - 20px)/3)', 
+//     padding: 0,
+//   },
+//   '& button': { 
+//     width: '100%',
+//     bgcolor: 'transparent', 
+//     paddingBottom: '100%',
+//   },
+//   '& img': {
+//     position: 'absolute',
+//     top: 0,
+//     left: 0,
+//     width: '100%',
+//     height: 'auto'
+//   }
+// } 
 const NotFound = styled('div')(() => ({ 
   backgroundColor: '#fff',
   height: '100%',  
@@ -192,19 +219,24 @@ const modalStyle = {
   '&.MuiBox-root': {
     textAlign: 'center',
     backgroundColor: '#fff',
-    'section:first-child': {
-      borderBottom: '1px solid #f1f1f1',
-      '& p': {
-        width: '100%',
-        textAlign: 'center',
-      }
-    },
-    'section:last-child': { 
-      '& svg': { 
-        fontSize: '60px',
-        marginBottom: '20px'
+    'section': {
+      '&:first-of-type': {
+        borderBottom: '1px solid #f1f1f1',
+        '& p': {
+          width: '100%',
+          textAlign: 'center',
+        }
       },
-    }
+      '&:last-of-type': { 
+        position: 'relative',
+        display: 'inline-block',
+        width: '100%', 
+        '& svg': { 
+          fontSize: '60px',
+          marginBottom: '20px'
+        },
+      }
+    }, 
   },
   '.MuiSvgIcon-root': {
    color: '#393939'
@@ -219,4 +251,68 @@ const CreateListButton = {
   backgroundColor: '#2d4b97',
   color: '#fff',
   margin: '30px 0 10px 0',
+}
+const imgBox = {
+  position: 'absolute',
+  top: '50%',
+  left: '50%',
+  transform: 'translate(-50%,-50%)'
+}
+
+const SwiperBox  = styled('div')(({theme}) => ({  
+  width: '100%',
+  height: '100%', 
+  '.swiper': {
+    height: '100%', 
+  },
+  '.swiper-slide': {  
+    'img': { 
+      width: '100%',
+      height: '100%', 
+      objectFit: 'cover'
+    } 
+  },
+  '.swiper-button-prev': {
+    backgroundColor: 'rgb(0 0 0 / 23%)',
+    width: '45px',
+    height: '45px',
+    borderRadius: '50%',
+    '&:after': {
+      fontSize: '18px',
+      fontWeight: '900',
+      color:"#fff"
+    }
+  },
+  '.swiper-button-next': {
+    backgroundColor: 'rgb(0 0 0 / 23%)',
+    width: '45px',
+    height: '45px',
+    borderRadius: '50%',
+    '&:after': {
+      fontSize: '18px',
+      fontWeight: '900',
+      color:"#fff"
+    }
+  },
+  '.swiper-pagination-bullet': {
+    backgroundColor: theme.palette.text.default,
+    opactiy: 'var(--swiper-pagination-bullet-inactive-opacity, 1)',
+  },
+  '.swiper-pagination-bullet-active': {
+    backgroundColor: '#fff'
+  }
+}))  
+
+const buttonBox = {
+  position: 'absolute',
+  bottom: '50px',
+  transform: 'translateX(-50%)',
+  height: '40px',
+  fontSize: '12px',
+  zIndex: '2',
+  '&.MuiButton-root': {
+    backgroundColor: 'rgb(0 0 0 / 23%)',
+    color: '#fff',
+    border: '1px solid #fff'
+  }
 }

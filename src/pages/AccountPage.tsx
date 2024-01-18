@@ -27,7 +27,7 @@ const AccountPage = () => {
   const [isLoading, setIsLoading] = useState(true)
   const [step, setStep] = useState(0)
   const [imgIs, setImgIs] = useState(false); 
-  const [imgSavePath, setImgSavePath] = useState('profile-dummy.svg')
+  const [imgSavePath, setImgSavePath] = useState("profile-dummy.svg")
   const [name, setName] = useState('');
   const nameRef = useRef<HTMLInputElement>(null)
    
@@ -75,23 +75,23 @@ const AccountPage = () => {
     return /^[a-z0-9_-]{1,15}$/.test(str)
   }
   
-  // 이미지 업로드
-  const changeFile = useCallback(async(e: ChangeEvent<HTMLInputElement>) => {
+  // 프로필 이미지 업로드
+  const handleUpLoadProfile = useCallback(async(e: ChangeEvent<HTMLInputElement>) => {
     const formData = new FormData()  
     const file = e.target.files?.[0];
     if(!file) return; 
-    formData.append('attachment', file);  
+    formData.append('profile', file);  
     
     await axios({
       method:'post',
-      url:`${import.meta.env.VITE_BACK_URL}/upload`, 
+      url:`${import.meta.env.VITE_BACK_URL}/account/upload`, 
       headers: { 'Content-Type': 'multipart/form-data' },  
       withCredentials: true,
       data: formData
     })
     .then((res) => {
-      if(res.data.success) { 
-        console.log(res,"res.data.imagePath")
+      console.log(res,"res")
+      if(res.data.success) {  
         setImgSavePath(res.data.imagePath)
         setTimeout(() => {
           setImgIs(true)
@@ -190,8 +190,8 @@ const AccountPage = () => {
                     <Link to={`/${item.account_name}`}>  
                       <Box>
                         <img src={
-                          `${item.account_profile}` === 'profile-dummy.svg' ? 
-                          `/assets/images/${item.account_profile}` : 
+                          `${item.account_profile}` === "profile-dummy.svg" ? 
+                          `/assets/images/${item.account_profile}` :
                           `${import.meta.env.VITE_BACK_URL}/uploads/profile/${item.account_profile}`
                           } alt="프로필 이미지"/> 
                       </Box>
@@ -282,9 +282,9 @@ const AccountPage = () => {
                 지금 변경하기
                 <input 
                   hidden  
-                  name="attachment" 
+                  name="profile" 
                   type="file" 
-                  onChange={changeFile}
+                  onChange={handleUpLoadProfile}
                 />  
               </Button>  
               <CButton 

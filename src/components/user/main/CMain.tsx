@@ -1,8 +1,8 @@
  
-import { Box, IconButton, List, ListItem, ListItemButton, TextField, TextareaAutosize, styled } from "@mui/material"
+import { Box, Button, IconButton, List, ListItem, ListItemButton, TextField, TextareaAutosize, styled } from "@mui/material"
 import CButton from "../../CButton"  
 import { InsertLink, PersonAddAlt, Verified } from "@mui/icons-material"
-import { useLocation } from "react-router"
+import { useLocation, useNavigate } from "react-router"
 import { useRecoilValue } from "recoil"
 import { userState } from "@/recoil/atoms/userState" 
 import { ChangeEvent, useCallback, useEffect, useRef, useState } from "react"
@@ -11,7 +11,7 @@ import CModal from "@/components/CModal"
 
 const profileDefault = {
   user_id: "",
-  account_profile: "/assets/images/profile-dummy.svg",
+  account_profile: "profile-dummy.svg",
   account_name: "",
   account_no: 0,
   account_info: "",
@@ -35,33 +35,97 @@ interface profileType {
 } 
 
 const CMain = () => {
-  const user = useRecoilValue(userState)
-  const path = useLocation().pathname.split('/')[1]
-  const [profile, setProfile] = useState<profileType>(profileDefault)   
+  const user = useRecoilValue(userState);
+  const path = useLocation().pathname.split('/')[1];
+  const [profile, setProfile] = useState<profileType>(profileDefault);
+  const [imgSavePath, setImgSavePath] = useState("profile-dummy.svg"); 
   const [profileEdit, setProfileEdit] = useState(false)
+  const [imgIs, setImgIs] = useState(false); 
   const [name, setName] = useState('');
-  const nameRef = useRef<HTMLInputElement>(null)
+  const [website, setWebsite] = useState('');
+  const [intro, setIntro] = useState('');
+  const nameRef = useRef<HTMLInputElement>(null);
+  const websiteRef = useRef<HTMLInputElement>(null);
+  const introRef = useRef<HTMLTextAreaElement>(null);
+  const navigate = useNavigate()
 
   // 데이터 가져오기
-  const postData = useCallback(async() => {  
-    console.log(path,"path")
+  const postData = useCallback(async() => {   
     await axios({
       method: 'get', 
       url: `${import.meta.env.VITE_BACK_URL}/list/profile/${path}` 
     })
     .then(( res ) => { 
+      // console.log(res.data.result[0],"res")
       if(res.data.code === 200) {
         setProfile(res.data.result[0])
+        setName(res.data.result[0].account_name)
+        setWebsite(res.data.result[0].account_link)
+        setIntro(res.data.result[0].account_info)
       }else{
         setProfile(profileDefault)
       }
     })
     .catch((err) => console.log(err))
   },[path])
-
+  
+  //프로필 링크 클릭 
   const handleAccountLink = (url: string) => {   
     window.location.href = `https://${url}`
   }
+
+  // 프로필 편집 이벤트
+  const handleEditSubmit = async() => {
+    const data = {
+      account_profile: imgSavePath, 
+      account_info: intro,
+      account_link: website,
+      account_name: name
+    }
+    await axios({
+      method: 'put',
+      url: `${import.meta.env.VITE_BACK_URL}/account/edit`,
+      data: data,
+      headers: {"Context-Type" : "application/json"},  
+      withCredentials: true 
+    })
+    .then((res) => {
+      if(res.data.code === 200) {
+        alert('프로필 변경에 성공하였습니다.');
+        navigate(`/${name}`)
+      } else {
+        alert('프로필 변경에 실패하였습니다.')
+        setProfileEdit(!profileEdit)
+      } 
+    })
+    .catch((err) => console.log(err))
+  }
+
+  // 프로필 이미지 업로드
+  const handleUpLoadProfile = useCallback(async(e: ChangeEvent<HTMLInputElement>) => {
+    const formData = new FormData()  
+    const file = e.target.files?.[0];
+    if(!file) return; 
+    formData.append('profile', file);  
+    
+    await axios({
+      method:'post',
+      url:`${import.meta.env.VITE_BACK_URL}/account/upload`, 
+      headers: { 'Content-Type': 'multipart/form-data' },  
+      withCredentials: true,
+      data: formData
+    })
+    .then((res) => {
+      console.log(res,"res")
+      if(res.data.success) {  
+        setImgSavePath(res.data.imagePath)
+        setTimeout(() => {
+          setImgIs(true)
+        }, 100);  
+      }
+    })
+    .catch((err) => console.log(err)) 
+  },[setImgSavePath]);
 
   useEffect(()=>{   
     postData() 
@@ -76,16 +140,16 @@ const CMain = () => {
             <Box sx={{ display: 'flex', flexDirection: 'column'}}>
               <Box sx={ProfileImgBox}>
                 <img src={
-                  profile?.account_profile ?
-                  `/assets/uploads/profile/${profile?.account_profile}`:
-                  "/assets/images/profile-dummy.svg"
+                  profile.account_profile === "profile-dummy.svg" ?
+                  `/assets/images/${profile.account_profile}` :
+                  `${import.meta.env.VITE_BACK_URL}/uploads/profile/${profile.account_profile}`
                   }
                 alt="profile" />
               </Box>
               <Box sx={{ display: 'flex', alignItems: 'center', marginTop: '10px', }}> 
                 <Name>{path}</Name>
                 {
-                  profile?.account_badge > 0 &&
+                  profile.account_badge > 0 &&
                   <Verified sx={{ fontSize: '16px', marginTop: '5px', color: 'text.main'}}/>
                 }
               </Box>
@@ -98,7 +162,7 @@ const CMain = () => {
                     sx={{ flexDirection: 'column', padding:0 }} 
                     onClick={() => console.log('게시물')}
                   > 
-                    <p>{profile?.account_list_num}</p>
+                    <p>{profile.account_list_num}</p>
                     <p>게시물</p>
                   </ListItemButton> 
                 </ListItem> 
@@ -108,7 +172,7 @@ const CMain = () => {
                     sx={{ flexDirection: 'column', padding:0 }} 
                     onClick={() => console.log('팔로워')}
                   > 
-                    <p>{profile?.account_followers}</p>
+                    <p>{profile.account_followers}</p>
                     <p>팔로워</p>
                   </ListItemButton> 
                 </ListItem> 
@@ -118,7 +182,7 @@ const CMain = () => {
                     sx={{ flexDirection: 'column', padding:0 }} 
                     onClick={() => console.log('팔로잉')}
                   >  
-                    <p>{profile?.account_following}</p>
+                    <p>{profile.account_following}</p>
                     <p>팔로잉</p>
                   </ListItemButton> 
                 </ListItem> 
@@ -126,13 +190,13 @@ const CMain = () => {
             </Box>
           </Box>
           <Box sx={ProfileText}>
-            <P>{profile?.account_info}</P> 
+            <P>{profile.account_info}</P> 
             {
-              profile?.account_link &&
+              profile.account_link &&
               <Box>
                 <InsertLink />
-                <CButton onClick={() => handleAccountLink(profile?.account_link)}>
-                  {profile?.account_link}
+                <CButton onClick={() => handleAccountLink(profile.account_link)}>
+                  {profile.account_link}
                 </CButton> 
               </Box>
             }
@@ -141,7 +205,9 @@ const CMain = () => {
             <CButton 
               type="lightgray" 
               style={{ flex: 1, whiteSpace: 'pre', height: '35px' }}
-              onClick={() => setProfileEdit(!profileEdit)}
+              onClick={() => {
+                setProfileEdit(!profileEdit)
+              } }
             >
               프로필편집
             </CButton> 
@@ -167,14 +233,19 @@ const CMain = () => {
         <Box sx={ProfileImg}> 
           <Box sx={{display: 'flex', flexDirection: 'column', flex: 0 }}>
             <Box sx={ProfileImgBox}>
-              <img src={profile?.account_profile} alt="profile" />
+              <img src={
+                  profile.account_profile === "profile-dummy.svg" ?
+                  `/assets/images/${profile.account_profile}` :
+                  `${import.meta.env.VITE_BACK_URL}/uploads/profile/${profile.account_profile}`
+                  }
+                alt="profile" />
             </Box>
           </Box> 
           <Box sx={{ display: 'flex', flexDirection: 'column', flex: 1}}>
             <Box sx={{ display: 'flex', alignItems: 'center' }}> 
               <Name>{path}</Name>
               {
-                profile?.account_badge > 0 &&
+                profile.account_badge > 0 &&
                 <Verified sx={{ fontSize: '16px', marginTop: '5px', color: 'text.main'}}/>
               }
             </Box>
@@ -205,13 +276,13 @@ const CMain = () => {
           </Box>
         </Box>
         <Box sx={ProfileText}>
-          <P>{profile?.account_info}</P> 
+          <P>{profile.account_info}</P> 
           {
-            profile?.account_link &&
+            profile.account_link &&
             <Box>
               <InsertLink />
-              <CButton onClick={() => handleAccountLink(profile?.account_link)}>
-                {profile?.account_link}
+              <CButton onClick={() => handleAccountLink(profile.account_link)}>
+                {profile.account_link}
               </CButton> 
             </Box>
           }
@@ -224,17 +295,36 @@ const CMain = () => {
           icon="close" 
           title="프로필 편집"
           style={modalStyle}
-          onClose={() => { setProfileEdit(!profileEdit)}}
+          onClose={() => { 
+            setProfileEdit(!profileEdit) 
+          }}
           open={true}  
         >
           <Box sx={EditRow1}>
-          <img src={ 
-            "/assets/images/profile-dummy.svg"
-            }
-          alt="profile" />
+            <Box sx={ProfileImgBox}>
+             {
+              imgIs ?
+              <img src={
+                imgSavePath === "profile-dummy.svg" ?
+                "/assets/images/profile-dummy.svg":
+                `${import.meta.env.VITE_BACK_URL}/uploads/profile/${imgSavePath}`
+                }
+              alt="profile"
+              /> 
+              :  
+              <img src={
+                profile.account_profile === "profile-dummy.svg" ?
+                "/assets/images/profile-dummy.svg" :
+                `${import.meta.env.VITE_BACK_URL}/uploads/profile/${profile.account_profile}`
+                }
+              alt="profile"
+              /> 
+             }
+            </Box>
             <Box sx={{display: 'flex', flexDirection: 'column'}} >
               <TextField  
-              variant="outlined"
+                variant="outlined"
+                disabled
                 sx={FormInputId} 
                 className={`${name && 'focused'}`}
                 onChange={
@@ -242,7 +332,19 @@ const CMain = () => {
                 value={name}
                 ref={nameRef} 
               />
-              <CButton medium type="blueBorder">프로필사진 바꾸기</CButton>
+              <Button 
+                sx={blueBtn}
+                component="label" 
+                disableRipple 
+              > 
+                지금 변경하기
+                <input 
+                  hidden  
+                  name="profile" 
+                  type="file" 
+                  onChange={handleUpLoadProfile}
+                />  
+              </Button> 
             </Box>
           </Box>
           <Box sx={EditRow2}>
@@ -250,22 +352,25 @@ const CMain = () => {
           <TextField  
           variant="outlined"
             sx={FormInputId} 
-            className={`${name && 'focused'}`}
+            className={`${website && 'focused'}`}
             onChange={
-              (event: ChangeEvent<HTMLInputElement>) => { setName(event.target.value) }}
-            value={name}
-            ref={nameRef}
+              (event: ChangeEvent<HTMLInputElement>) => { setWebsite(event.target.value) }}
+            value={website}
+            ref={websiteRef}
             placeholder="웹사이트를 입력해주세요."
           />
           </Box>
           <Box sx={EditRow2}>
             <p>소개</p>
-            <TextareaAutosize   
+            <TextareaAutosize    
+              ref={introRef} 
               aria-label="empty textarea" placeholder="소개글을 입력해주세요."
+              value={intro} 
+              onChange={ (event: ChangeEvent<HTMLTextAreaElement>)=> setIntro(event.target.value)}
             />
           </Box>
           <Box sx={EditRow2}>
-            <CButton large type="blue">제출</CButton>
+            <CButton large type="blue" onClick={handleEditSubmit}>제출</CButton>
           </Box>
         </CModal>
       }
@@ -356,7 +461,7 @@ const Name = styled('span')(() => ({
   marginRight: '5px'
 }))  
 const ProfileText = {
-  margin: '20px 0 10px 0',
+  margin: '10px 0 10px 0',
   'div': {
     marginTop: '10px',
     display: 'flex',
@@ -373,6 +478,7 @@ const ProfileText = {
     },
     'svg': {
       color: 'text.main',
+      marginTop: '3px',
       fontSize: '18px',
       transform: 'rotate(-45deg)'
     }
@@ -380,34 +486,35 @@ const ProfileText = {
 }  
 const P = styled('p')(({theme}) => ({ 
     fontWeight: '500',
-    color: theme.palette.text.default
+    color: theme.palette.text.default,
+    fontSize: '14px'
 })) 
-
-
+ 
 const modalStyle = {   
   '&.MuiBox-root': {
     textAlign: 'center',
     backgroundColor: '#fff',
-    'section:first-child': {
-      borderBottom: '1px solid #f1f1f1',
-      '& p': {
-        width: '100%',
-        textAlign: 'center',
-      }
-    },
-    'section:last-child': { 
-      flexDirection: 'column',
-      '& svg': { 
-        fontSize: '60px',
-        marginBottom: '20px'
+    'section': {
+      '&:first-of-type' : {
+        borderBottom: '1px solid #f1f1f1',
+        '& p': {
+          width: '100%',
+          textAlign: 'center',
+        }
       },
+      '&:last-of-type': {
+        flexDirection: 'column',
+        '& svg': { 
+          fontSize: '60px',
+          marginBottom: '20px'
+        },
+      }
     }
   },
   '.MuiSvgIcon-root': {
    color: '#393939'
   },
-} 
-
+}  
 
 const FormInputId = { 
   width: '195px',   
@@ -418,12 +525,6 @@ const FormInputId = {
     padding: '10px',
     borderRadius: '5px',
     color: '#393939',
-    '&:focus': {
-      outline: '1px solid #2d4b97', 
-    },
-    '&:hover': {
-      outline: '1px solid #2d4b97', 
-    }
   }, 
   '& .Mui-focused fieldset': {
     borderColor: 'form.input',
@@ -438,18 +539,9 @@ const EditRow1 = {
   justifyContent: 'space-between',
   gap: '10px',
   '& img': {
-    width: '70px',
+    width: '80px',
     height: 'auto'
-  },
-  '& button': {
-    marginTop: '10px',
-    width: '120px',
-    height: '25px', 
-    fontSize: '12px',
-    '&:hover': {
-      backgroundColor: 'transparent'
-    }
-  }
+  }, 
 }
 const EditRow2 = {
   padding: '0 10px',
@@ -476,7 +568,19 @@ const EditRow2 = {
       outline: '1px solid #2d4b97', 
     },
     '&:hover': {
-      outline: '1px solid #2d4b97', 
+      outline: '1px solid #000', 
     }
+  }
+}
+
+const blueBtn = {
+  border: '1px solid #2d4b97', 
+  marginTop: '10px',
+  width: '120px',
+  height: '25px', 
+  fontSize: '12px', 
+  color: '#2d4b97', 
+  '&:hover': {
+    backgroundColor: 'transparent'
   }
 }

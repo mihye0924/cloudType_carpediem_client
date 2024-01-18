@@ -2,6 +2,7 @@ import CModal from '@/components/CModal'
 import CButton from '@/components/CButton';
 import { Box, TextField, styled } from '@mui/material';
 import { ChangeEvent, useCallback, useEffect, useRef, useState } from 'react';  
+import { useNavigate } from 'react-router';
  
 // page
 const CLoginId = () => {   
@@ -12,7 +13,8 @@ const CLoginId = () => {
   const [min, setMin] = useState(3);
   const [sec, setSec] = useState(0)
   const time = useRef<number>(180)
-  
+  const navigate = useNavigate()
+
   const timerStart = useCallback(() => {  
     setMin(Number(time.current) / 60)
     setSec(Number(time.current) % 60)
@@ -29,8 +31,10 @@ const CLoginId = () => {
 
   return (
     <CModal  
-      onClose={() => console.log('닫기')} 
+      icon="close"
+      onClose={() => {navigate("/login")}} 
       open={true}
+      style={modalStyle}
     >  
       <Box sx={Container}>
         <H1>CarpeDiem</H1> 
@@ -188,3 +192,9 @@ const CertifiCateNumBox = styled('span')(() => ({
   color: 'red',
   fontWeight: '500'
 }))
+
+const modalStyle = {
+  '&.MuiBox-root': {
+    backgroundColor:'#fff'
+  }
+}

@@ -39,20 +39,10 @@ const MainPage = () => {
      url: `${import.meta.env.VITE_BACK_URL}/list/${path}`, 
      withCredentials: true
    })
-   .then(( res ) => {  
-    const data: DataType[] = []
-    res.data.result.forEach(( item: DataType ) => {  
-      data.push({
-        ...item,
-        list_image: Array.from(item.list_image)
-      })
-      setList(data);
-    })    
-    console.log(data,"data")
-    console.log(res.data.result,"res.data.result")
-    // if(res.data.code === 200) {  
-    //   // setList(res.data.result)
-    // }
+   .then(( res ) => {   
+    if(res.data.code === 200) {  
+      setList(res.data.result)
+    }
    })
    .catch((err) => console.log(err))
  },[path])

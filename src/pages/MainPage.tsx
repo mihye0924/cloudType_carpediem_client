@@ -40,18 +40,10 @@ const MainPage = () => {
      withCredentials: true
    })
    .then(( res ) => {  
-    const data = []
-    res.data.result.forEach(( item: { list_image: string } ) => {  
-      data.push({
-        ...item,
-        list_image: JSON.parse(item.list_image)
-      })
-      setList(list);
-    })   
- 
-    // if(res.data.code === 200) {  
-    //   // setList(res.data.result)
-    // }
+    if(res.data.code === 200) {  
+      setList(res.data.result)
+    }
+    console.log(list,"list")
    })
    .catch((err) => console.log(err))
  },[list, path])

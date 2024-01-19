@@ -41,6 +41,8 @@ const MainPage = () => {
    })
    .then(( res ) => {  
     const data: DataType[] = []
+    console.log(data,"data")
+    console.log(res.data.result,"res.data.result")
     res.data.result.forEach(( item: DataType ) => {  
       data.push({
         ...item,
@@ -48,7 +50,6 @@ const MainPage = () => {
       })
       setList(data);
     })    
-    console.log(data,"data")
     // if(res.data.code === 200) {  
     //   // setList(res.data.result)
     // }

@@ -34,7 +34,7 @@ const CMainImageList = (props: propsType) => {
   const navigate = useNavigate();
   const contentRef = useRef<HTMLTextAreaElement>(null);  
   const path = useLocation().pathname.split('/')[1];
-  // const [test, setTest] = useState<DataType[]>([])
+  const [test, setTest] = useState<DataType[]>([])
   
 
   // 글쓰기 스탭2. 이미지 가져오기
@@ -103,29 +103,27 @@ const CMainImageList = (props: propsType) => {
     .catch(err => console.log(err))
   },[content, imgSlideList, navigate, path])
 
-  useEffect(() => {  
-
-  //   const arr:DataType[] = []
-  //   props.list.forEach((item)=>{
-  //     const dataToString = JSON.stringify(item.list_image);
-  //     return arr.push({
-  //       ...item,
-  //       list_image: JSON.parse(dataToString)
-  //     });
-  //   })
-  //   setTest(arr)
-
+  useEffect(() => {   
+    const arr: DataType[] = []
+    props.list.forEach((item)=>{
+      const dataToString = JSON.stringify(item.list_image);
+      return arr.push({
+        ...item,
+        list_image: JSON.parse(dataToString)
+      });
+    })
+    setTest(arr) 
     },[props.list])
     
   return (
     <Section className={user.isAuth ? 'logged_in' : 'not_logged_in'}>
       {    
       
-      props.list.length > 0 ? 
+        test.length > 0 ? 
         <>
           <ListImage>
           {
-            props.list.map((item) => (
+            test.map((item) => (
               <li key={item.list_no}>
                 <CButton>  
                   <img src={`${import.meta.env.VITE_BACK_URL}/uploads/list/${item.list_image[0].img}`} alt="이미지"/>

@@ -99,7 +99,7 @@ const CMain = (props: propsType) => {
     if(props.profile) {
       setName(props.profile.account_name)
       setWebsite(props.profile.account_link)
-      setIntro(props.profile.account_link)
+      setIntro(props.profile.account_info)
     }
   }, [props.profile])
 

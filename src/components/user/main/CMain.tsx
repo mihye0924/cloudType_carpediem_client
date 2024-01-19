@@ -93,14 +93,7 @@ const CMain = (props: propsType) => {
     setInputCont(str)  
     setIntro(event.target.value)
   }  
-
-  useEffect(() => {
-    if(props.profile) {
-      setName(props.profile.account_name)
-      setWebsite(props.profile.account_link)
-      setIntro(props.profile.account_info)
-    }
-  },[props.profile])
+ 
 
   return (
     <Section>
@@ -178,6 +171,9 @@ const CMain = (props: propsType) => {
               style={{ flex: 1, whiteSpace: 'pre', height: '35px' }}
               onClick={() => {
                 setProfileEdit(!profileEdit)
+                setName(props.profile.account_name)
+                setWebsite(props.profile.account_link)
+                setIntro(props.profile.account_info)
               } }
             >
               프로필편집

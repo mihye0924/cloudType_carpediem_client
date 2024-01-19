@@ -5,7 +5,7 @@ import { InsertLink, PersonAddAlt, Verified } from "@mui/icons-material"
 import { useLocation, useNavigate } from "react-router"
 import { useRecoilValue } from "recoil"
 import { userState } from "@/recoil/atoms/userState" 
-import { ChangeEvent, useCallback, useEffect, useRef, useState } from "react"
+import { ChangeEvent, useCallback, useRef, useState } from "react"
 import axios from "axios" 
 import CModal from "@/components/CModal"       
 import { DataType, profileType } from "@/type/mainType"
@@ -154,7 +154,10 @@ const CMain = (props: propsType) => {
             </Box>
           </Box>
           <Box sx={ProfileText}>
-            <P>{props.profile.account_info}</P> 
+            {
+              props.profile.account_info &&
+              <P>{props.profile.account_info}</P> 
+            }
             {
               props.profile.account_link &&
               <Box>
@@ -197,64 +200,74 @@ const CMain = (props: propsType) => {
         </Box>
         :
         <Box sx={Container}> 
-        <Box sx={ProfileImg}> 
-          <Box sx={{display: 'flex', flexDirection: 'column', flex: 0 }}>
-            <Box sx={ProfileImgBox}>
-              <img src={
-                  props.profile.account_profile === "profile-dummy.svg" ?
-                  `/assets/images/${props.profile.account_profile}` :
-                  `${import.meta.env.VITE_BACK_URL}/uploads/profile/${props.profile.account_profile}`
+          <Box 
+            sx={ProfileImg} 
+            className={`${!user.isAuth && 'not_login'}`}
+            > 
+            <Box sx={{display: 'flex', flexDirection: 'column', flex: 0 }}>
+              <Box sx={ProfileImgBox}>
+                <img src={
+                    props.profile.account_profile === "profile-dummy.svg" ?
+                    `/assets/images/${props.profile.account_profile}` :
+                    `${import.meta.env.VITE_BACK_URL}/uploads/profile/${props.profile.account_profile}`
+                    }
+                  alt="profile" />
+              </Box>
+            </Box> 
+            <Box 
+              sx={{ display: 'flex', flexDirection: 'column', justifyContent: 'space-between', flex: 1}}
+            > 
+              <Box> 
+                <Box sx={{ display: 'flex', alignItems: 'center' }}> 
+                  <Name>{path}</Name>
+                  {
+                    props.profile.account_badge > 0 &&
+                    <Verified sx={{ fontSize: '16px', marginTop: '5px', color: 'text.main'}}/>
+                  } 
+                </Box> 
+                <Box sx={ProfileText}>
+                  {
+                    props.profile.account_info &&
+                    <P>{props.profile.account_info}</P> 
                   }
-                alt="profile" />
-            </Box>
-          </Box> 
-          <Box sx={{ display: 'flex', flexDirection: 'column', flex: 1}}>
-            <Box sx={{ display: 'flex', alignItems: 'center' }}> 
-              <Name>{path}</Name>
-              {
-                props.profile.account_badge > 0 &&
-                <Verified sx={{ fontSize: '16px', marginTop: '5px', color: 'text.main'}}/>
-              }
-            </Box>
-            <Box sx={ProfileBtn}>
-              <CButton 
-                type="blue" 
-                style={{ flex: 1, whiteSpace: 'pre', height: '35px' }}
-                onClick={() => console.log('팔로우')}
-              >
-                팔로우
-              </CButton> 
-              <CButton 
-                type="lightgray" 
-                style={{ flex: 1, whiteSpace: 'pre', height: '35px' }}
-                onClick={() => console.log('메시지 보내기')}
-              >
-                메시지 보내기
-              </CButton>  
-              <IconButton 
-                disableRipple
-                sx={PlusFriendsBtn} 
-                aria-label="menu" 
-                onClick={() => console.log('플러스친구')}
-              > 
-                <PersonAddAlt />
-              </IconButton>
+                  {
+                    props.profile.account_link &&
+                    <Box sx={{ height: ''}}>
+                      <InsertLink />
+                      <CButton onClick={() => handleAccountLink(props.profile.account_link)}>
+                        {props.profile.account_link}
+                      </CButton> 
+                    </Box>
+                  }
+                </Box>
+              </Box>
+              <Box sx={ProfileBtn}>
+                <CButton 
+                  type="blue" 
+                  style={{ flex: 1, whiteSpace: 'pre', height: '35px' }}
+                  onClick={() => console.log('팔로우')}
+                >
+                  팔로우
+                </CButton> 
+                <CButton 
+                  type="lightgray" 
+                  style={{ flex: 1, whiteSpace: 'pre', height: '35px' }}
+                  onClick={() => console.log('메시지 보내기')}
+                >
+                  메시지 보내기
+                </CButton>  
+                <IconButton 
+                  disableRipple
+                  sx={PlusFriendsBtn} 
+                  aria-label="menu" 
+                  onClick={() => console.log('플러스친구')}
+                > 
+                  <PersonAddAlt />
+                </IconButton>
+              </Box>
             </Box>
           </Box>
         </Box>
-        <Box sx={ProfileText}>
-          <P>{props.profile.account_info}</P> 
-          {
-            props.profile.account_link &&
-            <Box>
-              <InsertLink />
-              <CButton onClick={() => handleAccountLink(props.profile.account_link)}>
-                {props.profile.account_link}
-              </CButton> 
-            </Box>
-          }
-        </Box>
-      </Box>
       }
       {
         profileEdit &&
@@ -368,10 +381,14 @@ const ProfileImg = {
    justifyContent: 'space-between', 
    gap: '15px',
    'span' : { 
+    fontSize: '14px',
     fontWeight: '400',
     letterSpacing: '-1px',
     marginTop: '15px',
     color: 'text.default'
+   },
+   '&.not_login': {
+     height: '194px'
    }
 } 
 const ProfileImgBox = {
@@ -393,7 +410,7 @@ const ProfileList = {
     marginRight: '25px',
   },
   '& div' : {
-    bgcolor: 'transparent !important',
+    backgroundColor: 'transparent !important',
   },
   '& p:nth-of-type(1)' : {
     fontWeight: '400',
@@ -408,10 +425,10 @@ const ProfileList = {
   }
 } 
 const ProfileBtn = { 
+  marginTop: '10px',
   display: 'flex', 
   justifyContent: 'space-between', 
-  gap: '10px',
-  mt: '20px',    
+  gap: '10px', 
 } 
 const PlusFriendsBtn = { 
   flex: 0, 
@@ -434,15 +451,19 @@ const Name = styled('span')(() => ({
   marginRight: '5px'
 }))  
 const ProfileText = {
-  margin: '10px 0 10px 0',
-  'div': {
-    marginTop: '10px',
+  margin: '5px 0', 
+  '& p': {
+    height: '20px'
+  },
+  'div': { 
     display: 'flex',
+    height: '20px',
     'button': {
+      justifyContent: 'flex-start',
       width: 'auto',
       padding: 0,
       color: 'text.main',
-      fontSize: '14px',
+      fontSize: '12px',
       height: '20px',
       textTransform: 'lowercase',
       '&:hover': {
@@ -499,6 +520,9 @@ const FormInputId = {
     borderRadius: '5px',
     color: '#393939',
   }, 
+  '& .Mui-disabled': {
+   textFillColor: '#393939 !important', 
+  },
   '& .Mui-focused fieldset': {
     borderColor: 'form.input',
     borderWidth: '1px !important'

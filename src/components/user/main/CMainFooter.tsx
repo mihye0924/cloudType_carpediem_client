@@ -1,23 +1,47 @@
+import CButton from "@/components/CButton"
+import { userState } from "@/recoil/atoms/userState"
+import { profileType } from "@/type/mainType"
 import { HomeOutlined, AddBoxOutlined, BookmarkBorderOutlined, EmailOutlined } from "@mui/icons-material"
-import { Box, styled } from "@mui/material" 
-import { Link } from "react-router-dom"
+import { Box, styled } from "@mui/material"  
+import { useRecoilValue } from "recoil"
 
-const CMainFooter = () => {
+interface propsType {
+  setStep: React.Dispatch<React.SetStateAction<number>>
+  setModal: React.Dispatch<React.SetStateAction<boolean>> 
+  profile: profileType
+  modal: boolean 
+}
+
+
+const CMainFooter = (props: propsType) => { 
   return (
     <Section>
       <Box sx={FooterWrap}>
         <Box sx={FooterIconWrap}>
-          <Link to=""><HomeOutlined /></Link>
-          <Link to=""><AddBoxOutlined /></Link>
-          <Link to="">
-            <img src="/assets/images/profile-dummy.svg" alt="프로필" />
-          </Link>
-          <Link to="">
+          <CButton><HomeOutlined /></CButton>
+          <CButton 
+            onClick={() => {
+              
+              props.setModal(!props.modal)
+              props.setStep(1)
+            }}
+          ><AddBoxOutlined /></CButton>
+          <CButton>
+            <Box>
+              <img src={
+                props.profile.account_profile === "profile-dummy.svg" ?
+                `/assets/images/${props.profile.account_profile}` :
+                `${import.meta.env.VITE_BACK_URL}/uploads/profile/${props.profile.account_profile}`
+              }
+              alt="profile" />
+            </Box>
+          </CButton>
+          <CButton>
             <BookmarkBorderOutlined />
-          </Link>
-          <Link to="">
+          </CButton>
+          <CButton>
             <EmailOutlined />
-          </Link>
+          </CButton>
         </Box>
       </Box>
     </Section>
@@ -47,7 +71,22 @@ const FooterIconWrap = {
   justifyContent:'space-between',
   alignItems: 'center',
   padding: '10px',
-  'a': {
+  'button': {
+    minWidth: '30px',
+    width: '30px',
+    height: '30px',
+    overflow: 'hidden',
+    padding: 0,
+    color: '#000',
+    '&:hover': {
+      backgroundColor: 'transparent',
+    },
+    'div': { 
+      width: '25px',
+      height: '25px',
+      overflow: 'hidden',
+      borderRadius:'50%'
+    },
     'img': {
       width: '25px'
     },

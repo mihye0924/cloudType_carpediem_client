@@ -17,6 +17,7 @@ const MainPage = () => {
 
   // 프로필 데이터 가져오기
   const getProfileImgData = useCallback(async() => {
+    console.log('실행1')
     await axios({
       method: 'get', 
       url: `${import.meta.env.VITE_BACK_URL}/list/profile/${path}`
@@ -32,6 +33,7 @@ const MainPage = () => {
 
   // 리스트 가져오기
   const getListData = useCallback(async() => {
+    console.log('실행2')
     await axios({
      method: 'get', 
      url: `${import.meta.env.VITE_BACK_URL}/list/${path}`
@@ -43,12 +45,15 @@ const MainPage = () => {
    })
    .catch((err) => console.log(err))
  },[path])
- 
-  useEffect(() => {    
+
+  useEffect(() => { 
     getProfileImgData()
     getListData()   
-    setIsLoading(false)  
-  },[getListData, getProfileImgData, isLoading])
+  },[getListData, getProfileImgData])
+
+  useEffect(() => {   
+    setIsLoading(false)
+  },[isLoading])
 
   return (
     <>

@@ -1,5 +1,5 @@
 import { Box, Button, IconButton, TextareaAutosize, styled } from "@mui/material"
-import { ChangeEvent, useCallback, useEffect, useRef, useState } from "react" 
+import { ChangeEvent, useCallback, useRef, useState } from "react" 
 import { userState } from "@/recoil/atoms/userState"
 import { useRecoilValue } from "recoil"  
 import { AddAPhotoOutlined, FilterOutlined } from '@mui/icons-material';
@@ -102,9 +102,6 @@ const CMainImageList = (props: propsType) => {
     .catch(err => console.log(err))
   },[content, imgSlideList, navigate, path])
  
-  useEffect(() => {   
-  },[props.profile, props.list])
-
   return (
     <Section className={user.isAuth ? 'logged_in' : 'not_logged_in'}>
       {    

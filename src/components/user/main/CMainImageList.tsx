@@ -110,10 +110,11 @@ const CMainImageList = (props: propsType) => {
 
     const arr:DataType[] = []
     props.list.forEach((item)=>{
-      arr.push({
+      const dataToString = JSON.stringify(item.list_image);
+      return arr.push({
         ...item,
-        list_image: JSON.parse("[{\"id\":1,\"img\":\"test-image1.jpg\"},{\"id\":2,\"img\":\"test-image2.jpg\"}]")
-      })
+        list_image: JSON.parse(dataToString)
+      });
     })
     setTest(arr)
 

@@ -102,15 +102,7 @@ const CMainImageList = (props: propsType) => {
     .catch(err => console.log(err))
   },[content, imgSlideList, navigate, path])
 
-  useEffect(() => {   
-    // const arr: DataType[] = []
-    // props.list.forEach((item)=>{ 
-    //   return arr.push({
-    //     ...item,
-    //     list_image: JSON.parse(item.list_image)
-    //   });
-    // })
-    // setTest(arr) 
+  useEffect(() => {    
     },[props.list])
     
   return (

@@ -42,23 +42,25 @@ const MainPage = () => {
      withCredentials: true
    })
    .then(( res ) => {  
-     if(res.data.code === 200) {    
-      res.data.result.forEach((item: DataType)=>{ 
+    if(res.data.code === 200) { 
+        res.data.result.forEach(( item: DataType ) => {   
+
         return list.push({
-          ...item,
-          list_image: JSON.parse(item.list_image)
-        });
-      }) 
-       setList(list); 
-     }
+            ...item,
+            list_image: JSON.parse(JSON.stringify(item.list_image))
+          });
+        })   
+  
+      setList(list)
+    }
    })
    .catch((err) => console.log(err))
  },[list, path])
 
-  useEffect(() => { 
+  useEffect(() => {   
     getProfileImgData()
     getListData()   
-  },[getListData, getProfileImgData,])
+  },[getListData, getProfileImgData])
 
   useEffect(() => {   
     setIsLoading(false)

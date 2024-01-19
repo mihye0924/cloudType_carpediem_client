@@ -41,15 +41,15 @@ const MainPage = () => {
    })
    .then(( res ) => {  
     const data: DataType[] = []
-    console.log(data,"data")
-    console.log(res.data.result,"res.data.result")
     res.data.result.forEach(( item: DataType ) => {  
       data.push({
         ...item,
-        list_image: JSON.parse(JSON.stringify(item.list_image))
+        list_image: Array.from(item.list_image)
       })
       setList(data);
     })    
+    console.log(data,"data")
+    console.log(res.data.result,"res.data.result")
     // if(res.data.code === 200) {  
     //   // setList(res.data.result)
     // }

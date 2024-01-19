@@ -6,14 +6,14 @@ import { useCallback, useEffect, useState } from "react"
 import CLoading from "@/components/user/CLoading" 
 import axios from "axios"
 import { useLocation } from "react-router"   
-import { profileData, profileType } from "@/type/mainType" 
+import { DataType, profileData, profileType } from "@/type/mainType" 
 
 
 const MainPage = () => { 
   const [isLoading, setIsLoading] = useState<boolean>(true);  
   const path = useLocation().pathname.split('/')[1];  
   const [profile, setProfile] = useState<profileType>(profileData); 
-  const [list, setList] = useState<[]>([]);
+  const [list, setList] = useState<DataType[]>([]);
 
   // 프로필 데이터 가져오기
   const getProfileImgData = useCallback(async() => {
@@ -42,12 +42,18 @@ const MainPage = () => {
      withCredentials: true
    })
    .then(( res ) => {  
-     if(res.data.code === 200) {   
-       setList(res.data.result); 
+     if(res.data.code === 200) {    
+      res.data.result.forEach((item: DataType)=>{ 
+        return list.push({
+          ...item,
+          list_image: JSON.parse(item.list_image)
+        });
+      }) 
+       setList(list); 
      }
    })
    .catch((err) => console.log(err))
- },[path])
+ },[list, path])
 
   useEffect(() => { 
     getProfileImgData()

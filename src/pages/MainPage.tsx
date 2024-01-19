@@ -40,12 +40,21 @@ const MainPage = () => {
      withCredentials: true
    })
    .then(( res ) => {  
-    if(res.data.code === 200) {  
-      setList(res.data.result)
-    }
+    const data = []
+    res.data.result.forEach(( item: { list_image: string } ) => {  
+      data.push({
+        ...item,
+        list_image: JSON.parse(item.list_image)
+      })
+      setList(list);
+    })   
+ 
+    // if(res.data.code === 200) {  
+    //   // setList(res.data.result)
+    // }
    })
    .catch((err) => console.log(err))
- },[path])
+ },[list, path])
 
   useEffect(() => {   
     getProfileImgData()

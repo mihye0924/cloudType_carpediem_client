@@ -5,7 +5,7 @@ import { InsertLink, PersonAddAlt, Verified } from "@mui/icons-material"
 import { useLocation, useNavigate } from "react-router"
 import { useRecoilValue } from "recoil"
 import { userState } from "@/recoil/atoms/userState" 
-import { ChangeEvent, useCallback, useRef, useState } from "react"
+import { ChangeEvent, useCallback, useEffect, useRef, useState } from "react"
 import axios from "axios" 
 import CModal from "@/components/CModal"       
 import { DataType, profileType } from "@/type/mainType"
@@ -21,9 +21,9 @@ const CMain = (props: propsType) => {
   const [imgSavePath, setImgSavePath] = useState("profile-dummy.svg"); 
   const [profileEdit, setProfileEdit] = useState(false)
   const [imgIs, setImgIs] = useState(false);  
-  const [name, setName] = useState(props.profile.account_name);
-  const [website, setWebsite] = useState(props.profile.account_link);
-  const [intro, setIntro] = useState(props.profile.account_info);
+  const [name, setName] = useState("");
+  const [website, setWebsite] = useState("");
+  const [intro, setIntro] = useState("");
   const nameRef = useRef<HTMLInputElement>(null);
   const websiteRef = useRef<HTMLInputElement>(null);
   const introRef = useRef<HTMLTextAreaElement>(null); 
@@ -94,6 +94,14 @@ const CMain = (props: propsType) => {
     setInputCont(str)  
     setIntro(event.target.value)
   }  
+
+  useEffect(() => {
+    if(props.profile) {
+      setName(props.profile.account_name)
+      setWebsite(props.profile.account_link)
+      setIntro(props.profile.account_link)
+    }
+  },[props.profile])
 
   return (
     <Section>

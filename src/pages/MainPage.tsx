@@ -40,13 +40,21 @@ const MainPage = () => {
      withCredentials: true
    })
    .then(( res ) => {  
-    if(res.data.code === 200) {  
-      setList(JSON.parse(res.data.result))
-    }
-    console.log(list,"list")
+    const data: DataType[] = []
+    res.data.result.forEach(( item: DataType ) => {  
+      data.push({
+        ...item,
+        list_image: JSON.parse(JSON.stringify(item.list_image))
+      })
+      setList(data);
+    })    
+    console.log(data,"data")
+    // if(res.data.code === 200) {  
+    //   // setList(res.data.result)
+    // }
    })
    .catch((err) => console.log(err))
- },[list, path])
+ },[path])
 
   useEffect(() => {   
     getProfileImgData()

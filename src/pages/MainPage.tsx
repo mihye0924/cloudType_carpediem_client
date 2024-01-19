@@ -21,6 +21,7 @@ const MainPage = () => {
     await axios({
       method: 'get', 
       url: `${import.meta.env.VITE_BACK_URL}/list/profile/${path}`,
+      headers: {"Context-Type" : "application/json"}, 
       withCredentials: true
     })
     .then(( res ) => { 
@@ -38,6 +39,7 @@ const MainPage = () => {
     await axios({
      method: 'get', 
      url: `${import.meta.env.VITE_BACK_URL}/list/${path}`,
+     headers: {"Context-Type" : "application/json"}, 
      withCredentials: true
    })
    .then(( res ) => {  

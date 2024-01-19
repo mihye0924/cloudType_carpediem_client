@@ -36,7 +36,8 @@ const AccountPage = () => {
   const postData = useCallback(async() => { 
     await axios({
       method: "get",
-      url: `${import.meta.env.VITE_BACK_URL}/account/${user.user_id}`,  
+      url: `${import.meta.env.VITE_BACK_URL}/account/${user.user_id}`,
+      headers: {"Context-Type" : "application/json"},   
       withCredentials: true 
     })
     .then(( res ) => {
@@ -109,7 +110,8 @@ const AccountPage = () => {
   const handleNickNameCheck = useCallback(async() => {  
     await axios({
       method: 'get',
-      url:`${import.meta.env.VITE_BACK_URL}/account/checkName/${name}`,  
+      url:`${import.meta.env.VITE_BACK_URL}/account/checkName/${name}`,
+      headers: {"Context-Type" : "application/json"},   
       withCredentials: true 
     })
     .then((res) => {  

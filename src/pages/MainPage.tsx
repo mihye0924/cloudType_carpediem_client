@@ -31,8 +31,7 @@ const MainPage = () => {
     })
     .catch((err) => console.log(err))
   },[path])
-
-
+ 
   // 리스트 가져오기
   const getListData = useCallback(async() => {
     console.log('실행2')
@@ -53,7 +52,7 @@ const MainPage = () => {
   useEffect(() => { 
     getProfileImgData()
     getListData()   
-  },[getListData, getProfileImgData])
+  },[getListData, getProfileImgData,])
 
   useEffect(() => {   
     setIsLoading(false)

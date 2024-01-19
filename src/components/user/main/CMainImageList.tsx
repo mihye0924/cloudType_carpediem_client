@@ -33,7 +33,8 @@ const CMainImageList = (props: propsType) => {
   const [step, setStep] = useState(1)  
   const navigate = useNavigate();
   const contentRef = useRef<HTMLTextAreaElement>(null);  
-  const path = useLocation().pathname.split('/')[1]; 
+  const path = useLocation().pathname.split('/')[1];
+  const [test, setTest] = useState([])
   
 
   // 글쓰기 스탭2. 이미지 가져오기
@@ -103,7 +104,13 @@ const CMainImageList = (props: propsType) => {
   },[content, imgSlideList, navigate, path])
 
   useEffect(() => {
-    console.log(props.list,"ㄹㅇㅇㅇ")
+    console.log(props.list,"ㄹㅇㅇㅇ") // 이거 어케 나와요? 잠만 에러나는디요
+    
+    setTest([
+      ...props.list,
+      list_image: JSON.parse("[{\"id\":1,\"img\":\"test-image1.jpg\"},{\"id\":2,\"img\":\"test-image2.jpg\"}]")
+    ])
+
     },[props.list])
     
   return (
@@ -117,7 +124,7 @@ const CMainImageList = (props: propsType) => {
             props.list.map((item) => (
               <li key={item.list_no}>
                 <CButton>  
-                    <img src={`${import.meta.env.VITE_BACK_URL}/uploads/list/${JSON.parse(item.list_image[0].img)}`} alt="이미지"/>
+                  <img src={`${import.meta.env.VITE_BACK_URL}/uploads/list/${JSON.parse(item.list_image)[0].img}`} alt="이미지"/>
                 </CButton>
               </li>
             ))

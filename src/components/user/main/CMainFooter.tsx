@@ -1,9 +1,7 @@
-import CButton from "@/components/CButton"
-import { userState } from "@/recoil/atoms/userState"
+import CButton from "@/components/CButton" 
 import { profileType } from "@/type/mainType"
 import { HomeOutlined, AddBoxOutlined, BookmarkBorderOutlined, EmailOutlined } from "@mui/icons-material"
-import { Box, styled } from "@mui/material"  
-import { useRecoilValue } from "recoil"
+import { Box, styled } from "@mui/material"   
 
 interface propsType {
   setStep: React.Dispatch<React.SetStateAction<number>>

@@ -1,5 +1,5 @@
 import { Box, Button, IconButton, TextareaAutosize, styled } from "@mui/material"
-import { ChangeEvent, useCallback, useEffect, useRef, useState } from "react" 
+import { ChangeEvent, useCallback, useRef, useState } from "react" 
 import { userState } from "@/recoil/atoms/userState"
 import { useRecoilValue } from "recoil"  
 import { AddAPhotoOutlined, FilterOutlined } from '@mui/icons-material';
@@ -17,11 +17,11 @@ import 'swiper/css/navigation';
 import 'swiper/css/pagination';
 import 'swiper/css/scrollbar';  
 import { useLocation, useNavigate } from "react-router";  
-import { DataInital, DataType } from "@/type/mainType";
+import { DataType, profileType } from "@/type/mainType";
  
 interface propsType {
-  list: DataType[] 
-  
+  list: DataType[]  
+  profile: profileType
 }
 
 const CMainImageList = (props: propsType) => {  
@@ -32,26 +32,9 @@ const CMainImageList = (props: propsType) => {
   const [inputCont, setInputCont] = useState(0)
   const [step, setStep] = useState(1)  
   const navigate = useNavigate();
-  const [profile, setProfile] = useState<DataType>(DataInital); 
   const contentRef = useRef<HTMLTextAreaElement>(null);  
   const path = useLocation().pathname.split('/')[1];
   
-
-  // 프로필 데이터 가져오기
-  const getProfileImgData = useCallback(async() => {
-    await axios({
-      method: 'get', 
-      url: `${import.meta.env.VITE_BACK_URL}/list/profile/${path}`
-    })
-    .then(( res ) => { 
-      if(res.data.code === 200) {    
-        setProfile(res.data.result[0]);
-      }else{
-        setProfile(DataInital)
-      }
-    })
-    .catch((err) => console.log(err))
-  },[path])
 
   // 글쓰기 스탭2. 이미지 가져오기
   const handleChangeFile = useCallback(async(e: ChangeEvent<HTMLInputElement>) => {
@@ -118,11 +101,7 @@ const CMainImageList = (props: propsType) => {
     })
     .catch(err => console.log(err))
   },[content, imgSlideList, navigate, path])
-
-
-  useEffect(() => {   
-    getProfileImgData(); 
-  },[getProfileImgData])
+ 
 
   return (
     <Section className={user.isAuth ? 'logged_in' : 'not_logged_in'}>
@@ -236,9 +215,9 @@ const CMainImageList = (props: propsType) => {
                   <Box sx={profieImgBox}>
                     <Box>
                       <img src={
-                        profile.account_profile === "profile-dummy.svg" ?
+                        props.profile.account_profile === "profile-dummy.svg" ?
                         "/assets/images/profile-dummy.svg" :
-                        `${import.meta.env.VITE_BACK_URL}/uploads/profile/${profile.account_profile}`}
+                        `${import.meta.env.VITE_BACK_URL}/uploads/profile/${props.profile.account_profile}`}
                         alt="profile"/>
                     </Box>
                     <p>{path}</p>

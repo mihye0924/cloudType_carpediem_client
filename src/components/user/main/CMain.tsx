@@ -5,24 +5,28 @@ import { InsertLink, PersonAddAlt, Verified } from "@mui/icons-material"
 import { useLocation, useNavigate } from "react-router"
 import { useRecoilValue } from "recoil"
 import { userState } from "@/recoil/atoms/userState" 
-import { ChangeEvent, useCallback, useEffect, useRef, useState } from "react"
+import { ChangeEvent, useCallback, useRef, useState } from "react"
 import axios from "axios" 
-import CModal from "@/components/CModal"  
-import { DataInital, DataType } from "@/type/mainType"  
-  
-const CMain = () => {
+import CModal from "@/components/CModal"       
+import { DataType, profileType } from "@/type/mainType"
+
+interface propsType {
+  list: DataType[]  
+  profile: profileType
+}
+
+const CMain = (props: propsType) => {
   const user = useRecoilValue(userState);
   const path = useLocation().pathname.split('/')[1];
   const [imgSavePath, setImgSavePath] = useState("profile-dummy.svg"); 
   const [profileEdit, setProfileEdit] = useState(false)
   const [imgIs, setImgIs] = useState(false);  
-  const [name, setName] = useState("");
-  const [website, setWebsite] = useState("");
-  const [intro, setIntro] = useState("");
+  const [name, setName] = useState(props.profile.account_name);
+  const [website, setWebsite] = useState(props.profile.account_link);
+  const [intro, setIntro] = useState(props.profile.account_info);
   const nameRef = useRef<HTMLInputElement>(null);
   const websiteRef = useRef<HTMLInputElement>(null);
-  const introRef = useRef<HTMLTextAreaElement>(null);
-  const [profile, setProfile] = useState<DataType>(DataInital); 
+  const introRef = useRef<HTMLTextAreaElement>(null); 
   const [inputCont, setInputCont] = useState(0);
   const navigate = useNavigate()
 
@@ -35,7 +39,7 @@ const CMain = () => {
   const handleEditSubmit = async() => {
     const data = {
       account_profile: 
-      imgSavePath === "profile-dummy.svg" ? profile.account_profile : imgSavePath, 
+      imgSavePath === "profile-dummy.svg" ? props.profile.account_profile : imgSavePath, 
       account_info: intro,
       account_link: website,
       account_name: name
@@ -58,27 +62,7 @@ const CMain = () => {
     })
     .catch((err) => console.log(err))
   } 
-  
-  // 프로필 가져오기
-  const getProfileData = useCallback(async() => {
-    await axios({
-      method: 'get', 
-      url: `${import.meta.env.VITE_BACK_URL}/list/profile/${path}`
-    })
-    .then(( res ) => { 
-      if(res.data.code === 200) {    
-        setProfile(res.data.result[0]);
-        setName(res.data.result[0].account_name);
-        setIntro(res.data.result[0].account_info);
-        setWebsite(res.data.result[0].account_link);
-      }else{
-        setProfile(DataInital)
-      }
-    })
-    .catch((err) => console.log(err))
-  },[path])
-
-
+    
   // 프로필 이미지 업로드
   const handleUpLoadProfile = useCallback(async(e: ChangeEvent<HTMLInputElement>) => {
     const formData = new FormData()  
@@ -104,15 +88,12 @@ const CMain = () => {
     .catch((err) => console.log(err)) 
   },[setImgSavePath]);
 
+  // 텍스트 길이 체크
   const handleTextArea = (event: ChangeEvent<HTMLTextAreaElement>) => {
     const str =  event.target.value.replace(/[\0-\x7f]|([0-\u07ff]|(.))/g, "$&$1$2").length
     setInputCont(str)  
     setIntro(event.target.value)
-  } 
-  
-  useEffect(() => {
-    getProfileData();
-  },[getProfileData])
+  }  
 
   return (
     <Section>
@@ -123,16 +104,16 @@ const CMain = () => {
             <Box sx={{ display: 'flex', flexDirection: 'column'}}>
               <Box sx={ProfileImgBox}>
                 <img src={
-                  profile.account_profile === "profile-dummy.svg" ?
-                  `/assets/images/${profile.account_profile}` :
-                  `${import.meta.env.VITE_BACK_URL}/uploads/profile/${profile.account_profile}`
+                  props.profile.account_profile === "profile-dummy.svg" ?
+                  `/assets/images/${props.profile.account_profile}` :
+                  `${import.meta.env.VITE_BACK_URL}/uploads/profile/${props.profile.account_profile}`
                   }
                 alt="profile" />
               </Box>
               <Box sx={{ display: 'flex', alignItems: 'center', marginTop: '10px', }}> 
                 <Name>{path}</Name>
                 {
-                 profile.account_badge > 0 &&
+                 props.profile.account_badge > 0 &&
                   <Verified sx={{ fontSize: '16px', marginTop: '5px', color: 'text.main'}}/>
                 }
               </Box>
@@ -145,7 +126,7 @@ const CMain = () => {
                     sx={{ flexDirection: 'column', padding:0 }} 
                     onClick={() => console.log('게시물')}
                   > 
-                    <p>{profile.account_list_num}</p>
+                    <p>{props.list.length}</p>
                     <p>게시물</p>
                   </ListItemButton> 
                 </ListItem> 
@@ -155,7 +136,7 @@ const CMain = () => {
                     sx={{ flexDirection: 'column', padding:0 }} 
                     onClick={() => console.log('팔로워')}
                   > 
-                    <p>{profile.account_followers}</p>
+                    <p>{props.profile.account_followers}</p>
                     <p>팔로워</p>
                   </ListItemButton> 
                 </ListItem> 
@@ -165,7 +146,7 @@ const CMain = () => {
                     sx={{ flexDirection: 'column', padding:0 }} 
                     onClick={() => console.log('팔로잉')}
                   >  
-                    <p>{profile.account_following}</p>
+                    <p>{props.profile.account_following}</p>
                     <p>팔로잉</p>
                   </ListItemButton> 
                 </ListItem> 
@@ -173,13 +154,13 @@ const CMain = () => {
             </Box>
           </Box>
           <Box sx={ProfileText}>
-            <P>{profile.account_info}</P> 
+            <P>{props.profile.account_info}</P> 
             {
-              profile.account_link &&
+              props.profile.account_link &&
               <Box>
                 <InsertLink />
-                <CButton onClick={() => handleAccountLink(profile.account_link)}>
-                  {profile.account_link}
+                <CButton onClick={() => handleAccountLink(props.profile.account_link)}>
+                  {props.profile.account_link}
                 </CButton> 
               </Box>
             }
@@ -217,9 +198,9 @@ const CMain = () => {
           <Box sx={{display: 'flex', flexDirection: 'column', flex: 0 }}>
             <Box sx={ProfileImgBox}>
               <img src={
-                  profile.account_profile === "profile-dummy.svg" ?
-                  `/assets/images/${profile.account_profile}` :
-                  `${import.meta.env.VITE_BACK_URL}/uploads/profile/${profile.account_profile}`
+                  props.profile.account_profile === "profile-dummy.svg" ?
+                  `/assets/images/${props.profile.account_profile}` :
+                  `${import.meta.env.VITE_BACK_URL}/uploads/profile/${props.profile.account_profile}`
                   }
                 alt="profile" />
             </Box>
@@ -228,7 +209,7 @@ const CMain = () => {
             <Box sx={{ display: 'flex', alignItems: 'center' }}> 
               <Name>{path}</Name>
               {
-                profile.account_badge > 0 &&
+                props.profile.account_badge > 0 &&
                 <Verified sx={{ fontSize: '16px', marginTop: '5px', color: 'text.main'}}/>
               }
             </Box>
@@ -259,13 +240,13 @@ const CMain = () => {
           </Box>
         </Box>
         <Box sx={ProfileText}>
-          <P>{profile.account_info}</P> 
+          <P>{props.profile.account_info}</P> 
           {
-            profile.account_link &&
+            props.profile.account_link &&
             <Box>
               <InsertLink />
-              <CButton onClick={() => handleAccountLink(profile.account_link)}>
-                {profile.account_link}
+              <CButton onClick={() => handleAccountLink(props.profile.account_link)}>
+                {props.profile.account_link}
               </CButton> 
             </Box>
           }
@@ -296,9 +277,9 @@ const CMain = () => {
               /> 
               :  
               <img src={
-                profile.account_profile === "profile-dummy.svg" ?
+                props.profile.account_profile === "profile-dummy.svg" ?
                 "/assets/images/profile-dummy.svg" :
-                `${import.meta.env.VITE_BACK_URL}/uploads/profile/${profile.account_profile}`
+                `${import.meta.env.VITE_BACK_URL}/uploads/profile/${props.profile.account_profile}`
                 }
               alt="profile"
               /> 

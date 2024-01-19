@@ -33,7 +33,7 @@ const CMainImageList = (props: propsType) => {
   const [step, setStep] = useState(1)  
   const navigate = useNavigate();
   const contentRef = useRef<HTMLTextAreaElement>(null);  
-  const path = useLocation().pathname.split('/')[1];
+  const path = useLocation().pathname.split('/')[1]; 
   
 
   // 글쓰기 스탭2. 이미지 가져오기
@@ -102,18 +102,17 @@ const CMainImageList = (props: propsType) => {
     .catch(err => console.log(err))
   },[content, imgSlideList, navigate, path])
  
-  useEffect(() => {
-
-  },[props])
+  useEffect(() => {   
+  },[props.profile, props.list])
 
   return (
     <Section className={user.isAuth ? 'logged_in' : 'not_logged_in'}>
       {    
-        props.list.length > 0 ? 
+        props.list?.length > 0 ? 
         <>
           <ListImage>
           {
-            props.list?.map((item) => (
+            props.list.map((item) => (
               <li key={item.list_no}>
                 <CButton>  
                     <img src={`${import.meta.env.VITE_BACK_URL}/uploads/list/${item.list_image[0].img}`} alt="이미지"/>

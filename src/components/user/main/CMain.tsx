@@ -21,9 +21,9 @@ const CMain = (props: propsType) => {
   const [imgSavePath, setImgSavePath] = useState("profile-dummy.svg"); 
   const [profileEdit, setProfileEdit] = useState(false)
   const [imgIs, setImgIs] = useState(false);  
-  const [name, setName] = useState("");
-  const [website, setWebsite] = useState("");
-  const [intro, setIntro] = useState("");
+  const [name, setName] = useState(props.profile.account_name);
+  const [website, setWebsite] = useState(props.profile.account_link);
+  const [intro, setIntro] = useState(props.profile.account_link);
   const nameRef = useRef<HTMLInputElement>(null);
   const websiteRef = useRef<HTMLInputElement>(null);
   const introRef = useRef<HTMLTextAreaElement>(null); 
@@ -101,7 +101,7 @@ const CMain = (props: propsType) => {
       setWebsite(props.profile.account_link)
       setIntro(props.profile.account_link)
     }
-  },[props])
+  },[props.profile, props.list])
 
   return (
     <Section>

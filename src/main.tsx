@@ -8,12 +8,12 @@ import React from 'react';
 
 
 ReactDOM.createRoot(document.getElementById('root')!).render(
-  // <React.StrictMode>
+  <React.StrictMode>
     <RecoilRoot>
       <BrowserRouter>
         <Reset/>
         <App />
       </BrowserRouter> 
     </RecoilRoot>
- // </React.StrictMode> 
+ </React.StrictMode> 
 )

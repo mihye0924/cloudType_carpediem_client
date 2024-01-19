@@ -47,8 +47,7 @@ const CMain = (props: propsType) => {
     await axios({
       method: 'put',
       url: `${import.meta.env.VITE_BACK_URL}/account/edit`,
-      data: data,
-      headers: {"Context-Type" : "application/json"},  
+      data: data, 
       withCredentials: true 
     })
     .then((res) => {
@@ -101,7 +100,7 @@ const CMain = (props: propsType) => {
       setWebsite(props.profile.account_link)
       setIntro(props.profile.account_info)
     }
-  }, [props.profile])
+  },[props.profile])
 
   return (
     <Section>

@@ -20,8 +20,7 @@ const MainPage = () => {
     console.log('실행1')
     await axios({
       method: 'get', 
-      url: `${import.meta.env.VITE_BACK_URL}/list/profile/${path}`,
-      headers: {"Context-Type" : "application/json"}, 
+      url: `${import.meta.env.VITE_BACK_URL}/list/profile/${path}`, 
       withCredentials: true
     })
     .then(( res ) => { 
@@ -37,25 +36,16 @@ const MainPage = () => {
     console.log('실행2')
     await axios({
      method: 'get', 
-     url: `${import.meta.env.VITE_BACK_URL}/list/${path}`,
-     headers: {"Context-Type" : "application/json"}, 
+     url: `${import.meta.env.VITE_BACK_URL}/list/${path}`, 
      withCredentials: true
    })
    .then(( res ) => {  
-    if(res.data.code === 200) { 
-        res.data.result.forEach(( item: DataType ) => {   
-
-        return list.push({
-            ...item,
-            list_image: JSON.parse(JSON.stringify(item.list_image))
-          });
-        })   
-  
-      setList(list)
+    if(res.data.code === 200) {  
+      setList(res.data.result)
     }
    })
    .catch((err) => console.log(err))
- },[list, path])
+ },[path])
 
   useEffect(() => {   
     getProfileImgData()

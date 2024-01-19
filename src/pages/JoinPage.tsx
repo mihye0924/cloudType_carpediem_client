@@ -123,8 +123,7 @@ const JoinPage = () => {
     await axios({
       method: "post",
       url: `${import.meta.env.VITE_BACK_URL}/user/join`,
-      data: data,
-      headers: {"Context-Type": "application/json"},
+      data: data, 
       withCredentials: true
     }).then((response) => { 
       if(response.data.code === 200) {
@@ -148,8 +147,7 @@ const JoinPage = () => {
     }
     await axios({
       method: "get",
-      url: `${import.meta.env.VITE_BACK_URL}/user/${id}`,
-      headers: {"Context-Type" : "application/json"}, 
+      url: `${import.meta.env.VITE_BACK_URL}/user/${id}`, 
       withCredentials: true
     })
     .then((response) => {  

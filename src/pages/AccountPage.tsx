@@ -36,8 +36,7 @@ const AccountPage = () => {
   const postData = useCallback(async() => { 
     await axios({
       method: "get",
-      url: `${import.meta.env.VITE_BACK_URL}/account/${user.user_id}`,
-      headers: {"Context-Type" : "application/json"},   
+      url: `${import.meta.env.VITE_BACK_URL}/account/${user.user_id}`, 
       withCredentials: true 
     })
     .then(( res ) => {
@@ -110,8 +109,7 @@ const AccountPage = () => {
   const handleNickNameCheck = useCallback(async() => {  
     await axios({
       method: 'get',
-      url:`${import.meta.env.VITE_BACK_URL}/account/checkName/${name}`,
-      headers: {"Context-Type" : "application/json"},   
+      url:`${import.meta.env.VITE_BACK_URL}/account/checkName/${name}`, 
       withCredentials: true 
     })
     .then((res) => {  
@@ -136,8 +134,7 @@ const AccountPage = () => {
     await axios({
       method: 'post',
       url: `${import.meta.env.VITE_BACK_URL}/account/create`,
-      data: data,
-      headers: {"Context-Type" : "application/json"},
+      data: data, 
       withCredentials: true
     })
     .then((res) => {
@@ -163,8 +160,7 @@ const AccountPage = () => {
     await axios({
       method: 'delete',
       url: `${import.meta.env.VITE_BACK_URL}/account/delete`,
-      data: data,
-      headers: {"Context-Type" : "application/json"},
+      data: data, 
       withCredentials: true
     })
     .then((res) => {

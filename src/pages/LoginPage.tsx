@@ -42,8 +42,7 @@ const LoginPage = () => {
     await axios({
       method: "post",
       url: `${import.meta.env.VITE_BACK_URL}/user/login`,
-      data: data,
-      headers: {"Context-Type" : "application/json"},  
+      data: data, 
       withCredentials: true
     })
     .then((res) => {    

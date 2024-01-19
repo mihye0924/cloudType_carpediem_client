@@ -85,8 +85,7 @@ const CMainImageList = (props: propsType) => {
     await axios({
       method: 'post',
       url: `${import.meta.env.VITE_BACK_URL}/list/create`,
-      data: data,
-      headers: {"Context-Type" : "application/json"},  
+      data: data,   
       withCredentials: true
     })
     .then((res) => {
@@ -102,9 +101,9 @@ const CMainImageList = (props: propsType) => {
     .catch(err => console.log(err))
   },[content, imgSlideList, navigate, path])
 
-  useEffect(() => {    
-    },[props.list])
-    
+  useEffect(()=>{ 
+  },[props.list])
+
   return (
     <Section className={user.isAuth ? 'logged_in' : 'not_logged_in'}>
       {    

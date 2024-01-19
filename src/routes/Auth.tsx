@@ -27,8 +27,7 @@ function Auth(SpecificComponent: () => JSX.Element, option: null | boolean, admi
       url: `${import.meta.env.VITE_BACK_URL}/auth`,
       data: {
         token: user.token
-      },
-      headers: {"Context-Type" : "application/json"},  
+      }, 
       withCredentials: true 
     })
     .then(( res ) => {  
@@ -71,7 +70,7 @@ function Auth(SpecificComponent: () => JSX.Element, option: null | boolean, admi
             } 
           } 
         }
-        postData(); 
+        // postData(); 
       }
     }
    },[navigate, path, postData, user])

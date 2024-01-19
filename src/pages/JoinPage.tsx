@@ -148,7 +148,8 @@ const JoinPage = () => {
     }
     await axios({
       method: "get",
-      url: `${import.meta.env.VITE_BACK_URL}/user/${id}`
+      url: `${import.meta.env.VITE_BACK_URL}/user/${id}`,
+      withCredentials: true
     })
     .then((response) => {  
       if(response.data.code === 200){

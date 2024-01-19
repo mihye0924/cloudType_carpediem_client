@@ -20,7 +20,8 @@ const MainPage = () => {
     console.log('실행1')
     await axios({
       method: 'get', 
-      url: `${import.meta.env.VITE_BACK_URL}/list/profile/${path}`
+      url: `${import.meta.env.VITE_BACK_URL}/list/profile/${path}`,
+      withCredentials: true
     })
     .then(( res ) => { 
       if(res.data.code === 200) {    
@@ -36,7 +37,8 @@ const MainPage = () => {
     console.log('실행2')
     await axios({
      method: 'get', 
-     url: `${import.meta.env.VITE_BACK_URL}/list/${path}`
+     url: `${import.meta.env.VITE_BACK_URL}/list/${path}`,
+     withCredentials: true
    })
    .then(( res ) => {  
      if(res.data.code === 200) {   

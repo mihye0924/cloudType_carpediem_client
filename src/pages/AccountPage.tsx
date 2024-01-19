@@ -34,7 +34,11 @@ const AccountPage = () => {
 
   // 데이터 가져오기
   const postData = useCallback(async() => { 
-    await axios(`${import.meta.env.VITE_BACK_URL}/account/${user.user_id}`)
+    await axios({
+      method: "get",
+      url: `${import.meta.env.VITE_BACK_URL}/account/${user.user_id}`,  
+      withCredentials: true 
+    })
     .then(( res ) => {
       if(res.data.code === 200) {
         setResult(res.data.result)  
@@ -103,7 +107,11 @@ const AccountPage = () => {
   
   // 닉네임 사용여부
   const handleNickNameCheck = useCallback(async() => {  
-    await axios(`${import.meta.env.VITE_BACK_URL}/account/checkName/${name}`)
+    await axios({
+      method: 'get',
+      url:`${import.meta.env.VITE_BACK_URL}/account/checkName/${name}`,  
+      withCredentials: true 
+    })
     .then((res) => {  
       if(res.data.code === 200) {
         alert('사용 가능한 닉네임입니다.')

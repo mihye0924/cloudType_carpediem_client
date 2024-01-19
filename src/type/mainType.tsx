@@ -30,7 +30,10 @@ export interface DataType {
     account_following: number;
     account_badge: number;  
     list_no: string;
-    list_image: object;
+    list_image: [{
+      id: number;
+      img: string;
+    }];
     list_content: string;
     list_good: number;
     list_reply: object;

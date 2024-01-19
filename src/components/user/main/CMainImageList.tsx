@@ -3,6 +3,7 @@ import { ChangeEvent, useCallback, useEffect, useRef, useState } from "react"
 import { userState } from "@/recoil/atoms/userState"
 import { useRecoilValue } from "recoil"  
 import { AddAPhotoOutlined, FilterOutlined } from '@mui/icons-material';
+import CButton from "@/components/CButton";
 import CModal from "@/components/CModal" 
 import axios from "axios";
 
@@ -16,9 +17,14 @@ import 'swiper/css/navigation';
 import 'swiper/css/pagination';
 import 'swiper/css/scrollbar';  
 import { useLocation, useNavigate } from "react-router";  
+import { DataInital, DataType } from "@/type/mainType";
+ 
+interface propsType {
+  list: DataType[] 
+  
+}
 
-const CMainImageList = () => { 
-  const [list, setList] = useState<[]>([]); 
+const CMainImageList = (props: propsType) => {  
   const user = useRecoilValue(userState); 
   const [modal, setModal] = useState(false) 
   const [imgSlideList, setImgSlideList] = useState([])
@@ -26,21 +32,22 @@ const CMainImageList = () => {
   const [inputCont, setInputCont] = useState(0)
   const [step, setStep] = useState(1)  
   const navigate = useNavigate();
-  const path = useLocation().pathname.split('/')[1];
+  const [profile, setProfile] = useState<DataType>(DataInital); 
   const contentRef = useRef<HTMLTextAreaElement>(null);  
+  const path = useLocation().pathname.split('/')[1];
   
 
-  // 리스트 가져오기
-  const getListData = useCallback(async() => {
+  // 프로필 데이터 가져오기
+  const getProfileImgData = useCallback(async() => {
     await axios({
       method: 'get', 
-      url: `${import.meta.env.VITE_BACK_URL}/list/${path}`
+      url: `${import.meta.env.VITE_BACK_URL}/list/profile/${path}`
     })
-    .then(( res ) => {  
-      if(res.data.code === 200) {   
-        setList(res.data.result);
+    .then(( res ) => { 
+      if(res.data.code === 200) {    
+        setProfile(res.data.result[0]);
       }else{
-        setList([])
+        setProfile(DataInital)
       }
     })
     .catch((err) => console.log(err))
@@ -112,16 +119,27 @@ const CMainImageList = () => {
     .catch(err => console.log(err))
   },[content, imgSlideList, navigate, path])
 
-  useEffect(() => {    
-    getListData(); 
-  },[getListData])
+
+  useEffect(() => {   
+    getProfileImgData(); 
+  },[getProfileImgData])
 
   return (
     <Section className={user.isAuth ? 'logged_in' : 'not_logged_in'}>
       {    
-        list?.length > 0 ? 
-        <>  
-        ffffffffffff
+        props.list.length > 0 ? 
+        <>
+          <ListImage>
+          {
+            props.list.map((item) => (
+              <li key={item.list_no}>
+                <CButton>  
+                    <img src={`${import.meta.env.VITE_BACK_URL}/uploads/list/${item.list_image[0].img}`} alt="이미지"/>
+                </CButton>
+              </li>
+            ))
+          }
+          </ListImage>
         </>
         :
         <NotFound> 
@@ -217,11 +235,11 @@ const CMainImageList = () => {
                 <ContentBox> 
                   <Box sx={profieImgBox}>
                     <Box>
-                      {/* <img src={
+                      <img src={
                         profile.account_profile === "profile-dummy.svg" ?
                         "/assets/images/profile-dummy.svg" :
                         `${import.meta.env.VITE_BACK_URL}/uploads/profile/${profile.account_profile}`}
-                        alt="profile"/> */}
+                        alt="profile"/>
                     </Box>
                     <p>{path}</p>
                   </Box>
@@ -271,31 +289,32 @@ const Section = styled('section')(() => ({
       borderRadius: '30px'
     }
 }))
-// const ImageList = {
-//   position:'relative',
-//   display: 'flex',   
-//   flexWrap:'wrap',
-//   boxSizing: 'border-box', 
-//   padding: 0,
-//   gap: '10px',
-//   margin: '10px',
-//   '& li':{ 
-//     width: 'calc((100% - 20px)/3)', 
-//     padding: 0,
-//   },
-//   '& button': { 
-//     width: '100%',
-//     bgcolor: 'transparent', 
-//     paddingBottom: '100%',
-//   },
-//   '& img': {
-//     position: 'absolute',
-//     top: 0,
-//     left: 0,
-//     width: '100%',
-//     height: 'auto'
-//   }
-// } 
+const ListImage = styled('ul')(() => ({ 
+  position:'relative',
+  display: 'flex',   
+  flexWrap:'wrap',
+  boxSizing: 'border-box', 
+  padding: 0,
+  gap: '10px',
+  margin: '10px',
+  '& li':{ 
+    width: 'calc((100% - 20px)/3)', 
+    padding: 0,
+    overflow: 'hidden',
+  },
+  '& button': { 
+    width: '100%',
+    bgcolor: 'transparent', 
+    paddingBottom: '100%',
+  },
+  '& img': {
+    position: 'absolute',
+    top: 0,
+    left: 0,
+    width: '100%',
+    height: 'auto'
+  }
+}))
 const NotFound = styled('div')(() => ({ 
   backgroundColor: '#fff',
   height: '100%',  

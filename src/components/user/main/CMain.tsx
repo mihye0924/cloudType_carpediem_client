@@ -57,8 +57,7 @@ const CMain = () => {
       } 
     })
     .catch((err) => console.log(err))
-  }
-
+  } 
   
   // 프로필 가져오기
   const getProfileData = useCallback(async() => {
@@ -67,9 +66,11 @@ const CMain = () => {
       url: `${import.meta.env.VITE_BACK_URL}/list/profile/${path}`
     })
     .then(( res ) => { 
-      if(res.data.code === 200) {   
-        console.log(res,"데이터")
+      if(res.data.code === 200) {    
         setProfile(res.data.result[0]);
+        setName(res.data.result[0].account_name);
+        setIntro(res.data.result[0].account_info);
+        setWebsite(res.data.result[0].account_link);
       }else{
         setProfile(DataInital)
       }

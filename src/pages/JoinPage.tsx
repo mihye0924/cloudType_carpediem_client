@@ -106,7 +106,7 @@ const JoinPage = () => {
       alert('이메일이 일치하지 않습니다.')
       return false
     }
-    postData()
+    return postData()
   }  
 
   // 회원가입 post 요청
@@ -142,6 +142,10 @@ const JoinPage = () => {
 
   // 아이디 중복체크
   const handleIdCheck = async() => { 
+    if(id === "") {
+      alert('아이디를 입력해주세요.')
+      return false
+    }
     await axios({
       method: "get",
       url: `${import.meta.env.VITE_BACK_URL}/user/${id}`
@@ -331,7 +335,7 @@ const JoinPage = () => {
           (!emailText && email.length > 0) &&
           <Box sx={ErrorText}>이메일이 일치하지 않습니다.</Box>
         }
-        <CButton onClick={() => validationCheck} large type='blue' style={{ mt: '30px', height:'45px' }}>
+        <CButton onClick={validationCheck} large type='blue' style={{ mt: '30px', height:'45px' }}>
           회원가입
         </CButton>
       </Box>

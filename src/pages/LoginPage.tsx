@@ -104,7 +104,7 @@ const LoginPage = () => {
           /> 
         </Box>
         <CButton large type="blue" 
-          onClick={() => validationCheck()}
+          onClick={validationCheck}
           style={{ padding: '10px 0', mt: '10px', height: '45px' }}>
           로그인
         </CButton>

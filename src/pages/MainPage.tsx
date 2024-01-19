@@ -43,7 +43,7 @@ const MainPage = () => {
    })
    .then(( res ) => {  
      if(res.data.code === 200) {   
-       setList(res.data.result); 
+       setList(JSON.parse(res.data.result)); 
      }
    })
    .catch((err) => console.log(err))

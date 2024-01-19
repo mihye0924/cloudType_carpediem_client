@@ -6,10 +6,10 @@ import { useCallback, useEffect, useState } from "react"
 import CLoading from "@/components/user/CLoading" 
 import axios from "axios"
 import { useLocation } from "react-router"   
-import { profileData, profileType } from "@/type/mainType"
+import { profileData, profileType } from "@/type/mainType" 
 
 
-const MainPage = () => {
+const MainPage = () => { 
   const [isLoading, setIsLoading] = useState<boolean>(true);  
   const path = useLocation().pathname.split('/')[1];  
   const [profile, setProfile] = useState<profileType>(profileData); 
@@ -43,12 +43,11 @@ const MainPage = () => {
    })
    .catch((err) => console.log(err))
  },[path])
-
-
-  useEffect(() => {  
+ 
+  useEffect(() => {    
     getProfileImgData()
     getListData()   
-    setIsLoading(false) 
+    setIsLoading(false)  
   },[getListData, getProfileImgData, isLoading])
 
   return (

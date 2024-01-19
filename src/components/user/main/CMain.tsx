@@ -101,7 +101,7 @@ const CMain = (props: propsType) => {
       setWebsite(props.profile.account_link)
       setIntro(props.profile.account_link)
     }
-  },[props.profile])
+  },[props])
 
   return (
     <Section>

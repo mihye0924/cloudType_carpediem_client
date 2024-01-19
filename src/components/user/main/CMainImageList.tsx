@@ -1,5 +1,5 @@
 import { Box, Button, IconButton, TextareaAutosize, styled } from "@mui/material"
-import { ChangeEvent, useCallback, useRef, useState } from "react" 
+import { ChangeEvent, useCallback, useEffect, useRef, useState } from "react" 
 import { userState } from "@/recoil/atoms/userState"
 import { useRecoilValue } from "recoil"  
 import { AddAPhotoOutlined, FilterOutlined } from '@mui/icons-material';
@@ -102,6 +102,9 @@ const CMainImageList = (props: propsType) => {
     .catch(err => console.log(err))
   },[content, imgSlideList, navigate, path])
  
+  useEffect(() => {
+
+  },[props])
 
   return (
     <Section className={user.isAuth ? 'logged_in' : 'not_logged_in'}>
@@ -110,7 +113,7 @@ const CMainImageList = (props: propsType) => {
         <>
           <ListImage>
           {
-            props.list.map((item) => (
+            props.list?.map((item) => (
               <li key={item.list_no}>
                 <CButton>  
                     <img src={`${import.meta.env.VITE_BACK_URL}/uploads/list/${item.list_image[0].img}`} alt="이미지"/>

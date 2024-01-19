@@ -1,10 +1,10 @@
 
 import { JSX } from "react/jsx-runtime"; 
 import { useLocation, useNavigate } from "react-router-dom";
-import { useRecoilState } from "recoil";
+import { useRecoilValue } from "recoil";
 import { userState } from "@/recoil/atoms/userState";
-import { useCallback, useEffect} from "react";
-import axios from "axios";
+import {  useEffect} from "react";
+// import axios from "axios";
 
 // SpecificComponent: 감싸질 컴포넌트
 // option:
@@ -18,32 +18,33 @@ import axios from "axios";
 function Auth(SpecificComponent: () => JSX.Element, option: null | boolean, adminRoute: null | boolean = null) {
   function AuthenticationCheck() { 
     const navigate = useNavigate()  
-    const [user, setUser] = useRecoilState(userState);
+    // const [user, setUser] = useRecoilState(userState);
+    const user = useRecoilValue(userState);
     const path = useLocation().pathname.split('/')
       
-  const postData = useCallback(async() => {
-    await axios({
-      method: "post",
-      url: `${import.meta.env.VITE_BACK_URL}/auth`,
-      data: {
-        token: user.token
-      }, 
-      withCredentials: true 
-    })
-    .then(( res ) => {  
-      if(res.data.code === "New Token"){ 
-        const data = {
-          ...user,        
-          token: res.data.token
-        }
-        setUser(data) 
-      }else{
-        setUser(user)
-      }
-    }).catch((err) => {
-      console.log("Auth Error :", err)
-    })
-  },[setUser, user])
+  // const postData = useCallback(async() => {
+  //   await axios({
+  //     method: "post",
+  //     url: `${import.meta.env.VITE_BACK_URL}/auth`,
+  //     data: {
+  //       token: user.token
+  //     }, 
+  //     withCredentials: true 
+  //   })
+  //   .then(( res ) => {  
+  //     if(res.data.code === "New Token"){ 
+  //       const data = {
+  //         ...user,        
+  //         token: res.data.token
+  //       }
+  //       setUser(data) 
+  //     }else{
+  //       setUser(user)
+  //     }
+  //   }).catch((err) => {
+  //     console.log("Auth Error :", err)
+  //   })
+  // },[setUser, user])
   
    useEffect(() => {  
      // 로그인한 안한 상태 
@@ -73,7 +74,7 @@ function Auth(SpecificComponent: () => JSX.Element, option: null | boolean, admi
         // postData(); 
       }
     }
-   },[navigate, path, postData, user])
+   },[navigate, path, user])
 
  
 

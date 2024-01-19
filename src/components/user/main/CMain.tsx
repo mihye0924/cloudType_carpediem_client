@@ -7,68 +7,25 @@ import { useRecoilValue } from "recoil"
 import { userState } from "@/recoil/atoms/userState" 
 import { ChangeEvent, useCallback, useEffect, useRef, useState } from "react"
 import axios from "axios" 
-import CModal from "@/components/CModal"
-
-const profileDefault = {
-  user_id: "",
-  account_profile: "profile-dummy.svg",
-  account_name: "",
-  account_no: 0,
-  account_info: "",
-  account_link: "",
-  account_list_num: 0,
-  account_followers: 0,
-  account_following: 0,
-  account_badge: 0
-}
-interface profileType {
-  user_id: string;
-  account_profile: string;
-  account_name: string;
-  account_no: number;
-  account_info: string;
-  account_link: string;
-  account_list_num: number;
-  account_followers: number;
-  account_following: number;
-  account_badge: number;
-} 
-
+import CModal from "@/components/CModal"  
+import { DataInital, DataType } from "@/type/mainType"  
+  
 const CMain = () => {
   const user = useRecoilValue(userState);
   const path = useLocation().pathname.split('/')[1];
-  const [profile, setProfile] = useState<profileType>(profileDefault);
   const [imgSavePath, setImgSavePath] = useState("profile-dummy.svg"); 
   const [profileEdit, setProfileEdit] = useState(false)
-  const [imgIs, setImgIs] = useState(false); 
-  const [name, setName] = useState('');
-  const [website, setWebsite] = useState('');
-  const [intro, setIntro] = useState('');
+  const [imgIs, setImgIs] = useState(false);  
+  const [name, setName] = useState("");
+  const [website, setWebsite] = useState("");
+  const [intro, setIntro] = useState("");
   const nameRef = useRef<HTMLInputElement>(null);
   const websiteRef = useRef<HTMLInputElement>(null);
   const introRef = useRef<HTMLTextAreaElement>(null);
+  const [profile, setProfile] = useState<DataType>(DataInital); 
+  const [inputCont, setInputCont] = useState(0);
   const navigate = useNavigate()
 
-  // 데이터 가져오기
-  const postData = useCallback(async() => {   
-    await axios({
-      method: 'get', 
-      url: `${import.meta.env.VITE_BACK_URL}/list/profile/${path}` 
-    })
-    .then(( res ) => { 
-      // console.log(res.data.result[0],"res")
-      if(res.data.code === 200) {
-        setProfile(res.data.result[0])
-        setName(res.data.result[0].account_name)
-        setWebsite(res.data.result[0].account_link)
-        setIntro(res.data.result[0].account_info)
-      }else{
-        setProfile(profileDefault)
-      }
-    })
-    .catch((err) => console.log(err))
-  },[path])
-  
   //프로필 링크 클릭 
   const handleAccountLink = (url: string) => {   
     window.location.href = `https://${url}`
@@ -77,7 +34,8 @@ const CMain = () => {
   // 프로필 편집 이벤트
   const handleEditSubmit = async() => {
     const data = {
-      account_profile: imgSavePath, 
+      account_profile: 
+      imgSavePath === "profile-dummy.svg" ? profile.account_profile : imgSavePath, 
       account_info: intro,
       account_link: website,
       account_name: name
@@ -101,6 +59,25 @@ const CMain = () => {
     .catch((err) => console.log(err))
   }
 
+  
+  // 프로필 가져오기
+  const getProfileData = useCallback(async() => {
+    await axios({
+      method: 'get', 
+      url: `${import.meta.env.VITE_BACK_URL}/list/profile/${path}`
+    })
+    .then(( res ) => { 
+      if(res.data.code === 200) {   
+        console.log(res,"데이터")
+        setProfile(res.data.result[0]);
+      }else{
+        setProfile(DataInital)
+      }
+    })
+    .catch((err) => console.log(err))
+  },[path])
+
+
   // 프로필 이미지 업로드
   const handleUpLoadProfile = useCallback(async(e: ChangeEvent<HTMLInputElement>) => {
     const formData = new FormData()  
@@ -115,8 +92,7 @@ const CMain = () => {
       withCredentials: true,
       data: formData
     })
-    .then((res) => {
-      console.log(res,"res")
+    .then((res) => { 
       if(res.data.success) {  
         setImgSavePath(res.data.imagePath)
         setTimeout(() => {
@@ -127,9 +103,15 @@ const CMain = () => {
     .catch((err) => console.log(err)) 
   },[setImgSavePath]);
 
-  useEffect(()=>{   
-    postData() 
-  },[postData])
+  const handleTextArea = (event: ChangeEvent<HTMLTextAreaElement>) => {
+    const str =  event.target.value.replace(/[\0-\x7f]|([0-\u07ff]|(.))/g, "$&$1$2").length
+    setInputCont(str)  
+    setIntro(event.target.value)
+  } 
+  
+  useEffect(() => {
+    getProfileData();
+  },[getProfileData])
 
   return (
     <Section>
@@ -149,7 +131,7 @@ const CMain = () => {
               <Box sx={{ display: 'flex', alignItems: 'center', marginTop: '10px', }}> 
                 <Name>{path}</Name>
                 {
-                  profile.account_badge > 0 &&
+                 profile.account_badge > 0 &&
                   <Verified sx={{ fontSize: '16px', marginTop: '5px', color: 'text.main'}}/>
                 }
               </Box>
@@ -321,7 +303,7 @@ const CMain = () => {
               /> 
              }
             </Box>
-            <Box sx={{display: 'flex', flexDirection: 'column'}} >
+            <Box sx={{display: 'flex', flexDirection: 'column', flex: 1}} >
               <TextField  
                 variant="outlined"
                 disabled
@@ -366,8 +348,13 @@ const CMain = () => {
               ref={introRef} 
               aria-label="empty textarea" placeholder="소개글을 입력해주세요."
               value={intro} 
-              onChange={ (event: ChangeEvent<HTMLTextAreaElement>)=> setIntro(event.target.value)}
+              onChange={handleTextArea}
+              maxLength={50}
             />
+          </Box>
+          <Box sx={EditRow2}>
+            <p></p>
+            <span>{inputCont} / 50</span>
           </Box>
           <Box sx={EditRow2}>
             <CButton large type="blue" onClick={handleEditSubmit}>제출</CButton>
@@ -405,6 +392,7 @@ const ProfileImg = {
 const ProfileImgBox = {
   width: '80px',
   height: '80px',
+  flexBasis: '80px',
   borderRadius: '50%',
   overflow: 'hidden',
   'img': {
@@ -516,10 +504,10 @@ const modalStyle = {
   },
 }  
 
-const FormInputId = { 
-  width: '195px',   
+const FormInputId = {  
   backgroundColor: '#fff', 
-  'input': {
+  flex: 1,
+  'input': { 
     fontSize: '12px',
     border: '1px solid #f1f1f1',
     padding: '10px',
@@ -533,8 +521,7 @@ const FormInputId = {
 }
 const EditRow1 = {
   padding: '0 10px',
-  width: '100%',
-  maxWidth: '300px',
+  width: '100%', 
   display: 'flex',
   justifyContent: 'space-between',
   gap: '10px',
@@ -545,18 +532,18 @@ const EditRow1 = {
 }
 const EditRow2 = {
   padding: '0 10px',
-  width: '100%',
-  maxWidth: '300px',
+  width: '100%', 
   display: 'flex',
   justifyContent: 'space-between',
   alignItems: 'center',
   gap: '10px',
-  marginTop: '20px',
-  'p': {
-    fontSize: '12px'
+  marginTop: '10px',
+  '& p': {
+    fontSize: '12px',
+    flexBasis: '80px',
   },
-  'textarea': {
-    width: '195px',
+  'textarea': { 
+    flex: 1,
     height: '130px !important',
     border: '1px solid #c7c7c7', 
     borderRadius: '5px',

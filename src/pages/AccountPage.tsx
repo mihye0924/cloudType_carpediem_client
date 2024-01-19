@@ -187,7 +187,7 @@ const AccountPage = () => {
               result.length > 0 ?
               <List className={ result.length < 1 ? 'no_height':''}> 
               {
-                result?.map((item: accountType) => {
+                result.map((item: accountType) => {
                   return(
                   <ListItem key={item.account_no}> 
                     <Link to={`/${item.account_name}`}>  

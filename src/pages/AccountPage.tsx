@@ -199,7 +199,7 @@ const AccountPage = () => {
               {
                 result.map((item: accountType) => {
                   return(
-                  <ListItem key={item.account_no}> 
+                  <ListItem key={item.account_no+"_account"}> 
                     <Link to={`/${item.account_name}`}>  
                       <Box>
                         <img src={

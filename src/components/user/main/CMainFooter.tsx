@@ -1,35 +1,46 @@
 import CButton from "@/components/CButton" 
-import { profileType } from "@/type/mainType"
+import { WriteModalStatus, profileModalStatus } from "@/recoil/atoms/modalStatus"
+import { profileStatus } from "@/recoil/atoms/profileStatus"
 import { HomeOutlined, AddBoxOutlined, BookmarkBorderOutlined, EmailOutlined } from "@mui/icons-material"
 import { Box, styled } from "@mui/material"   
+import { useRecoilState, useRecoilValue, useSetRecoilState } from "recoil"
+ 
 
-interface propsType {
-  setStep: React.Dispatch<React.SetStateAction<number>>
-  setModal: React.Dispatch<React.SetStateAction<boolean>> 
-  profile: profileType
-  modal: boolean 
-}
+const CMainFooter = () => { 
+  const setWrite = useSetRecoilState(WriteModalStatus); // 프로필 편집
+  const profile = useRecoilValue(profileStatus); 
+  const [edit, setEdit] = useRecoilState(profileModalStatus);
 
-
-const CMainFooter = (props: propsType) => { 
   return (
     <Section>
       <Box sx={FooterWrap}>
         <Box sx={FooterIconWrap}>
-          <CButton><HomeOutlined /></CButton>
+          <CButton>
+            <HomeOutlined />
+          </CButton>
+          <CButton 
+            onClick={() => { 
+              setWrite((prev) => {
+                return{
+                  ...prev,
+                  modal: true,
+                  step: 1,
+                }
+              }) 
+            }}
+          >
+            <AddBoxOutlined />
+          </CButton>
           <CButton 
             onClick={() => {
-              
-              props.setModal(!props.modal)
-              props.setStep(1)
+              setEdit(!edit)
             }}
-          ><AddBoxOutlined /></CButton>
-          <CButton>
+          >
             <Box>
               <img src={
-                props.profile.account_profile === "profile-dummy.svg" ?
-                `/assets/images/${props.profile.account_profile}` :
-                `${import.meta.env.VITE_BACK_URL}/uploads/profile/${props.profile.account_profile}`
+                profile.account_profile === "profile-dummy.svg" ?
+                `/assets/images/${profile.account_profile}` :
+                `${import.meta.env.VITE_BACK_URL}/uploads/profile/${profile.account_profile}`
               }
               alt="profile" />
             </Box>

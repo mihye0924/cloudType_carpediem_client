@@ -1,37 +1,34 @@
 import { Box, IconButton, styled } from "@mui/material" 
-import { AddAPhotoOutlined } from '@mui/icons-material'; 
-import { DataType, profileType } from "@/type/mainType";
+import { AddAPhotoOutlined } from '@mui/icons-material';
 import { Link } from "react-router-dom";
 import { userState } from "@/recoil/atoms/userState";
-import { useRecoilValue } from "recoil";
+import { useRecoilValue, useSetRecoilState } from "recoil";
+import { WriteModalStatus } from "@/recoil/atoms/modalStatus";
+import { profileStatus } from "@/recoil/atoms/profileStatus";
+import { listStatus } from "@/recoil/atoms/listState";
 
  
-interface propsType {
-  setStep: React.Dispatch<React.SetStateAction<number>>
-  setModal: React.Dispatch<React.SetStateAction<boolean>>
-  list: DataType[]  
-  profile: profileType
-  modal: boolean 
-}
-
-const CMainImageList = (props: propsType) => {   
+const CMainImageList = () => {   
   const user = useRecoilValue(userState);
+  const setWrite = useSetRecoilState(WriteModalStatus); // 프로필 편집
+  const profile = useRecoilValue(profileStatus);
+  const list = useRecoilValue(listStatus);
  
   return (
     <Section className={
       `
       ${ !user.isAuth ? 'not_login' : ''}
-      ${ user.isAuth && props.profile.account_link ? 'height30':""}
-      ${ user.isAuth && props.profile.account_info ? 'height30':""}
-      ${ user.isAuth && props.profile.account_link && props.profile.account_info ? 'height40': ""}`
+      ${ user.isAuth && profile.account_link ? 'height30':""}
+      ${ user.isAuth && profile.account_info ? 'height30':""}
+      ${ user.isAuth && profile.account_link && profile.account_info ? 'height40': ""}`
       }>
       {    
       
-        props.list.length > 0 ? 
+        list.length > 0 ? 
         <>
           <ListImage>
           {
-            props.list.map((item) => (
+            list.map((item) => (
               <li key={item.list_no}>
                 <Link to={`/${item.account_name}/${item.list_no}`}>  
                   <img src={`${import.meta.env.VITE_BACK_URL}/uploads/list/${item.list_image[0].img}`} alt="이미지"/>
@@ -41,23 +38,37 @@ const CMainImageList = (props: propsType) => {
           }
           </ListImage>
         </>
-        :
-        <NotFound> 
-          <Box>
-            <IconButton 
-                disableRipple
-                aria-label="menu" 
-                onClick={() => {
-                  props.setModal(!props.modal)
-                  props.setStep(1)
-                }}
-              > 
-              <AddAPhotoOutlined /> 
-            </IconButton>
-            <p>사진 공유</p>
-            <span>사진을 공유하면 회원님의 프로필에 표시됩니다.</span>
-          </Box>
-        </NotFound>
+        : 
+        <>
+          {
+            user.isAuth ? 
+            <NotFound> 
+              <Box>
+                <IconButton 
+                    disableRipple
+                    aria-label="menu" 
+                    onClick={() => {
+                      setWrite((prev) => {
+                        return{
+                          ...prev,
+                          modal: true,
+                          step: 1
+                        }
+                      }) 
+                    }}
+                  > 
+                  <AddAPhotoOutlined /> 
+                </IconButton>
+                <p>사진 공유</p>
+                <span>사진을 공유하면 회원님의 프로필에 표시됩니다.</span>
+              </Box>
+            </NotFound>
+            :
+            <NotFound>
+              <Box>게시글이 없습니다.</Box> 
+            </NotFound>
+          } 
+        </>
       }
     </Section>
   )

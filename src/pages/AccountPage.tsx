@@ -153,28 +153,32 @@ const AccountPage = () => {
 
   // 계정 삭제하기
   const handleDeleteAccount = useCallback(async(nickName: string) => {
+    
     const data = {
       user_id: user.user_id,
       account_name: nickName
     }
-    await axios({
-      method: 'delete',
-      url: `${import.meta.env.VITE_BACK_URL}/account/delete`,
-      data: data, 
-      withCredentials: true
-    })
-    .then((res) => {
-      if(res.data.code === 200) {
-        alert('계정이 삭제되었습니다.');
-        navigate(`/${user.user_id}/account`)
-        window.location.reload();
-        return false
-      }else{
-        alert('계정 삭제를 실패하였습니다.');
-        return false
-      } 
-    })
-    .catch((err) => console.log(err))
+
+    if(confirm('계정을 삭제하시겠습니까?')) { 
+      await axios({
+        method: 'delete',
+        url: `${import.meta.env.VITE_BACK_URL}/account/delete`,
+        data: data, 
+        withCredentials: true
+      })
+      .then((res) => {
+        if(res.data.code === 200) {
+          alert('계정이 삭제되었습니다.');
+          navigate(`/${user.user_id}/account`)
+          window.location.reload();
+          return false
+        }
+      })
+      .catch(err => console.log(err)) 
+    }else {
+      alert('계정 삭제를 실패하였습니다.');
+      return false
+    }
   },[navigate, user.user_id])
  
   useEffect(() => {   

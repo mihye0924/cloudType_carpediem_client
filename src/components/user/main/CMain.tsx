@@ -1,99 +1,26 @@
  
-import { Box, Button, IconButton, List, ListItem, ListItemButton, TextField, TextareaAutosize, styled } from "@mui/material"
+import { Box, IconButton, List, ListItem, ListItemButton, styled } from "@mui/material"
 import CButton from "../../CButton"  
 import { InsertLink, PersonAddAlt, Verified } from "@mui/icons-material"
-import { useLocation, useNavigate } from "react-router"
-import { useRecoilValue } from "recoil"
-import { userState } from "@/recoil/atoms/userState" 
-import { ChangeEvent, useCallback, useRef, useState } from "react"
-import axios from "axios" 
-import CModal from "@/components/CModal"       
-import { DataType, profileType } from "@/type/mainType"
+import { useLocation } from "react-router"
+import { useRecoilState, useRecoilValue } from "recoil"
+import { userState } from "@/recoil/atoms/userState"   
+import { profileModalStatus } from "@/recoil/atoms/modalStatus" 
+import { profileStatus } from "@/recoil/atoms/profileStatus"
+import { listStatus } from "@/recoil/atoms/listState"
+  
 
-interface propsType {
-  list: DataType[]  
-  profile: profileType
-}
-
-const CMain = (props: propsType) => {
+const CMain = () => { 
   const user = useRecoilValue(userState);
-  const path = useLocation().pathname.split('/')[1];
-  const [imgSavePath, setImgSavePath] = useState("profile-dummy.svg"); 
-  const [profileEdit, setProfileEdit] = useState(false)
-  const [imgIs, setImgIs] = useState(false);  
-  const [name, setName] = useState(props.profile.account_name);
-  const [website, setWebsite] = useState(props.profile.account_link);
-  const [intro, setIntro] = useState(props.profile.account_link);
-  const nameRef = useRef<HTMLInputElement>(null);
-  const websiteRef = useRef<HTMLInputElement>(null);
-  const introRef = useRef<HTMLTextAreaElement>(null); 
-  const [inputCont, setInputCont] = useState(0);
-  const navigate = useNavigate()
+  const path = useLocation().pathname.split('/')[1]; 
+  const [edit, setEdit] = useRecoilState(profileModalStatus); // 프로필 편집
+  const profile = useRecoilValue(profileStatus); // 프로필 데이터
+  const list = useRecoilValue(listStatus)
 
   //프로필 링크 클릭 
   const handleAccountLink = (url: string) => {   
     window.location.href = `https://${url}`
-  }
-
-  // 프로필 편집 이벤트
-  const handleEditSubmit = async() => {
-    const data = {
-      account_profile: 
-      imgSavePath === "profile-dummy.svg" ? props.profile.account_profile : imgSavePath, 
-      account_info: intro,
-      account_link: website,
-      account_name: name
-    }
-    await axios({
-      method: 'put',
-      url: `${import.meta.env.VITE_BACK_URL}/account/edit`,
-      data: data, 
-      withCredentials: true 
-    })
-    .then((res) => {
-      if(res.data.code === 200) {
-        alert('프로필 변경에 성공하였습니다.');
-        navigate(`/${name}`)
-      } else {
-        alert('프로필 변경에 실패하였습니다.')
-        setProfileEdit(!profileEdit)
-      } 
-    })
-    .catch((err) => console.log(err))
-  } 
-    
-  // 프로필 이미지 업로드
-  const handleUpLoadProfile = useCallback(async(e: ChangeEvent<HTMLInputElement>) => {
-    const formData = new FormData()  
-    const file = e.target.files?.[0];
-    if(!file) return; 
-    formData.append('profile', file);  
-    
-    await axios({
-      method:'post',
-      url:`${import.meta.env.VITE_BACK_URL}/account/upload`, 
-      headers: { 'Content-Type': 'multipart/form-data' },  
-      withCredentials: true,
-      data: formData
-    })
-    .then((res) => { 
-      if(res.data.success) {  
-        setImgSavePath(res.data.imagePath)
-        setTimeout(() => {
-          setImgIs(true)
-        }, 100);  
-      }
-    })
-    .catch((err) => console.log(err)) 
-  },[setImgSavePath]);
-
-  // 텍스트 길이 체크
-  const handleTextArea = (event: ChangeEvent<HTMLTextAreaElement>) => {
-    const str =  event.target.value.replace(/[\0-\x7f]|([0-\u07ff]|(.))/g, "$&$1$2").length
-    setInputCont(str)  
-    setIntro(event.target.value)
   }  
- 
 
   return (
     <Section>
@@ -104,16 +31,16 @@ const CMain = (props: propsType) => {
             <Box sx={{ display: 'flex', flexDirection: 'column'}}>
               <Box sx={ProfileImgBox}>
                 <img src={
-                  props.profile.account_profile === "profile-dummy.svg" ?
-                  `/assets/images/${props.profile.account_profile}` :
-                  `${import.meta.env.VITE_BACK_URL}/uploads/profile/${props.profile.account_profile}`
+                  profile.account_profile === "profile-dummy.svg" ?
+                  `/assets/images/${profile.account_profile}` :
+                  `${import.meta.env.VITE_BACK_URL}/uploads/profile/${profile.account_profile}`
                   }
                 alt="profile" />
               </Box>
               <Box sx={{ display: 'flex', alignItems: 'center', marginTop: '10px', }}> 
                 <Name>{path}</Name>
                 {
-                 props.profile.account_badge > 0 &&
+                 profile.account_badge > 0 &&
                   <Verified sx={{ fontSize: '16px', marginTop: '5px', color: 'text.main'}}/>
                 }
               </Box>
@@ -126,7 +53,7 @@ const CMain = (props: propsType) => {
                     sx={{ flexDirection: 'column', padding:0 }} 
                     onClick={() => console.log('게시물')}
                   > 
-                    <p>{props.list.length}</p>
+                    <p>{list.length}</p>
                     <p>게시물</p>
                   </ListItemButton> 
                 </ListItem> 
@@ -136,7 +63,7 @@ const CMain = (props: propsType) => {
                     sx={{ flexDirection: 'column', padding:0 }} 
                     onClick={() => console.log('팔로워')}
                   > 
-                    <p>{props.profile.account_followers}</p>
+                    <p>{profile.account_followers}</p>
                     <p>팔로워</p>
                   </ListItemButton> 
                 </ListItem> 
@@ -146,7 +73,7 @@ const CMain = (props: propsType) => {
                     sx={{ flexDirection: 'column', padding:0 }} 
                     onClick={() => console.log('팔로잉')}
                   >  
-                    <p>{props.profile.account_following}</p>
+                    <p>{profile.account_following}</p>
                     <p>팔로잉</p>
                   </ListItemButton> 
                 </ListItem> 
@@ -155,15 +82,15 @@ const CMain = (props: propsType) => {
           </Box>
           <Box sx={ProfileText}>
             {
-              props.profile.account_info &&
-              <P>{props.profile.account_info}</P> 
+              profile.account_info &&
+              <P>{profile.account_info}</P> 
             }
             {
-              props.profile.account_link &&
+              profile.account_link &&
               <Box>
                 <InsertLink />
-                <CButton onClick={() => handleAccountLink(props.profile.account_link)}>
-                  {props.profile.account_link}
+                <CButton onClick={() => handleAccountLink(profile.account_link)}>
+                  {profile.account_link}
                 </CButton> 
               </Box>
             }
@@ -172,12 +99,7 @@ const CMain = (props: propsType) => {
             <CButton 
               type="lightgray" 
               style={{ flex: 1, whiteSpace: 'pre', height: '35px' }}
-              onClick={() => {
-                setProfileEdit(!profileEdit)
-                setName(props.profile.account_name)
-                setWebsite(props.profile.account_link)
-                setIntro(props.profile.account_info)
-              } }
+              onClick={() => { setEdit(!edit) }}
             >
               프로필편집
             </CButton> 
@@ -207,9 +129,9 @@ const CMain = (props: propsType) => {
             <Box sx={{display: 'flex', flexDirection: 'column', flex: 0 }}>
               <Box sx={ProfileImgBox}>
                 <img src={
-                    props.profile.account_profile === "profile-dummy.svg" ?
-                    `/assets/images/${props.profile.account_profile}` :
-                    `${import.meta.env.VITE_BACK_URL}/uploads/profile/${props.profile.account_profile}`
+                    profile.account_profile === "profile-dummy.svg" ?
+                    `/assets/images/${profile.account_profile}` :
+                    `${import.meta.env.VITE_BACK_URL}/uploads/profile/${profile.account_profile}`
                     }
                   alt="profile" />
               </Box>
@@ -221,21 +143,21 @@ const CMain = (props: propsType) => {
                 <Box sx={{ display: 'flex', alignItems: 'center' }}> 
                   <Name>{path}</Name>
                   {
-                    props.profile.account_badge > 0 &&
+                    profile.account_badge > 0 &&
                     <Verified sx={{ fontSize: '16px', marginTop: '5px', color: 'text.main'}}/>
                   } 
                 </Box> 
                 <Box sx={ProfileText}>
                   {
-                    props.profile.account_info &&
-                    <P>{props.profile.account_info}</P> 
+                    profile.account_info &&
+                    <P>{profile.account_info}</P> 
                   }
                   {
-                    props.profile.account_link &&
+                    profile.account_link &&
                     <Box sx={{ height: ''}}>
                       <InsertLink />
-                      <CButton onClick={() => handleAccountLink(props.profile.account_link)}>
-                        {props.profile.account_link}
+                      <CButton onClick={() => handleAccountLink(profile.account_link)}>
+                        {profile.account_link}
                       </CButton> 
                     </Box>
                   }
@@ -268,96 +190,6 @@ const CMain = (props: propsType) => {
             </Box>
           </Box>
         </Box>
-      }
-      {
-        profileEdit &&
-        <CModal 
-          icon="close" 
-          title="프로필 편집"
-          style={modalStyle}
-          onClose={() => { 
-            setProfileEdit(!profileEdit) 
-          }}
-          open={true}  
-        >
-          <Box sx={EditRow1}>
-            <Box sx={ProfileImgBox}>
-             {
-              imgIs ?
-              <img src={
-                imgSavePath === "profile-dummy.svg" ?
-                "/assets/images/profile-dummy.svg":
-                `${import.meta.env.VITE_BACK_URL}/uploads/profile/${imgSavePath}`
-                }
-              alt="profile"
-              /> 
-              :  
-              <img src={
-                props.profile.account_profile === "profile-dummy.svg" ?
-                "/assets/images/profile-dummy.svg" :
-                `${import.meta.env.VITE_BACK_URL}/uploads/profile/${props.profile.account_profile}`
-                }
-              alt="profile"
-              /> 
-             }
-            </Box>
-            <Box sx={{display: 'flex', flexDirection: 'column', flex: 1}} >
-              <TextField  
-                variant="outlined"
-                disabled
-                sx={FormInputId} 
-                className={`${name && 'focused'}`}
-                onChange={
-                  (event: ChangeEvent<HTMLInputElement>) => { setName(event.target.value) }}
-                value={name}
-                ref={nameRef} 
-              />
-              <Button 
-                sx={blueBtn}
-                component="label" 
-                disableRipple 
-              > 
-                지금 변경하기
-                <input 
-                  hidden  
-                  name="profile" 
-                  type="file" 
-                  onChange={handleUpLoadProfile}
-                />  
-              </Button> 
-            </Box>
-          </Box>
-          <Box sx={EditRow2}>
-          <p>웹사이트</p>
-          <TextField  
-          variant="outlined"
-            sx={FormInputId} 
-            className={`${website && 'focused'}`}
-            onChange={
-              (event: ChangeEvent<HTMLInputElement>) => { setWebsite(event.target.value) }}
-            value={website}
-            ref={websiteRef}
-            placeholder="웹사이트를 입력해주세요."
-          />
-          </Box>
-          <Box sx={EditRow2}>
-            <p>소개</p>
-            <TextareaAutosize    
-              ref={introRef} 
-              aria-label="empty textarea" placeholder="소개글을 입력해주세요."
-              value={intro} 
-              onChange={handleTextArea}
-              maxLength={50}
-            />
-          </Box>
-          <Box sx={EditRow2}>
-            <p></p>
-            <span>{inputCont} / 50</span>
-          </Box>
-          <Box sx={EditRow2}>
-            <CButton large type="blue" onClick={handleEditSubmit}>제출</CButton>
-          </Box>
-        </CModal>
       }
     </Section>
   )
@@ -453,7 +285,8 @@ const Name = styled('span')(() => ({
 const ProfileText = {
   margin: '5px 0', 
   '& p': {
-    height: '20px'
+    height: '20px',
+    lineHeight: '1.5',
   },
   'div': { 
     display: 'flex',
@@ -484,99 +317,3 @@ const P = styled('p')(({theme}) => ({
     fontSize: '14px'
 })) 
  
-const modalStyle = {   
-  '&.MuiBox-root': {
-    textAlign: 'center',
-    backgroundColor: '#fff',
-    'section': {
-      '&:first-of-type' : {
-        borderBottom: '1px solid #f1f1f1',
-        '& p': {
-          width: '100%',
-          textAlign: 'center',
-        }
-      },
-      '&:last-of-type': {
-        flexDirection: 'column',
-        '& svg': { 
-          fontSize: '60px',
-          marginBottom: '20px'
-        },
-      }
-    }
-  },
-  '.MuiSvgIcon-root': {
-   color: '#393939'
-  },
-}  
-
-const FormInputId = {  
-  backgroundColor: '#fff', 
-  flex: 1,
-  'input': { 
-    fontSize: '12px',
-    border: '1px solid #f1f1f1',
-    padding: '10px',
-    borderRadius: '5px',
-    color: '#393939',
-  }, 
-  '& .Mui-disabled': {
-   textFillColor: '#393939 !important', 
-  },
-  '& .Mui-focused fieldset': {
-    borderColor: 'form.input',
-    borderWidth: '1px !important'
-  },
-}
-const EditRow1 = {
-  padding: '0 10px',
-  width: '100%', 
-  display: 'flex',
-  justifyContent: 'space-between',
-  gap: '10px',
-  '& img': {
-    width: '80px',
-    height: 'auto'
-  }, 
-}
-const EditRow2 = {
-  padding: '0 10px',
-  width: '100%', 
-  display: 'flex',
-  justifyContent: 'space-between',
-  alignItems: 'center',
-  gap: '10px',
-  marginTop: '10px',
-  '& p': {
-    fontSize: '12px',
-    flexBasis: '80px',
-  },
-  'textarea': { 
-    flex: 1,
-    height: '130px !important',
-    border: '1px solid #c7c7c7', 
-    borderRadius: '5px',
-    padding: '10px',
-    color: '#393939',
-    fontWeight: '300',
-    fontSize: '12px', 
-    '&:focus': {
-      outline: '1px solid #2d4b97', 
-    },
-    '&:hover': {
-      outline: '1px solid #000', 
-    }
-  }
-}
-
-const blueBtn = {
-  border: '1px solid #2d4b97', 
-  marginTop: '10px',
-  width: '120px',
-  height: '25px', 
-  fontSize: '12px', 
-  color: '#2d4b97', 
-  '&:hover': {
-    backgroundColor: 'transparent'
-  }
-}

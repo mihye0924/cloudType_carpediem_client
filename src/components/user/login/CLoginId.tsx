@@ -3,32 +3,149 @@ import CButton from '@/components/CButton';
 import { Box, TextField, styled } from '@mui/material';
 import { ChangeEvent, useCallback, useEffect, useRef, useState } from 'react';  
 import { useNavigate } from 'react-router';
+import axios from 'axios';  
+   
  
 // page
 const CLoginId = () => {   
-  const [id, setId] = useState('')
-  const [phone, setPhone] = useState('') 
-  const [checkNum, setCheckNum] = useState('000000') 
+  const [name, setName] = useState('')
+  const [phone, setPhone] = useState('')  
+  const [phoneText, setPhoneText] = useState(false); 
+  const [checkNum, setCheckNum] = useState('') 
+  const [step, setStep] = useState(1)
   const [certificateNum, setCertificateNum] = useState(false)
   const [min, setMin] = useState(3);
   const [sec, setSec] = useState(0)
+  const [id, setId] = useState("")
+  const navigate = useNavigate()   
+
   const time = useRef<number>(180)
-  const navigate = useNavigate()
-
+  const nameRef = useRef<HTMLInputElement>(null)
+  const phoneRef = useRef<HTMLInputElement>(null)
+  const checkNumRef = useRef<HTMLInputElement>(null) 
+  const intervalRef = useRef<ReturnType<typeof setInterval> | null>(null)
+  
+  
+  // 타이머 텍스트
+ const handleTimerNum = () => {  
+  return (min > 0 ? Math.floor(min) : '0') + ":" + (min > 0 ? sec : '0')
+ }
+   
+  // 타이머 설정
   const timerStart = useCallback(() => {  
-    setMin(Number(time.current) / 60)
-    setSec(Number(time.current) % 60)
-    Number(time.current -= 1)
+    intervalRef.current = setInterval(() => {
+      setMin(Number(time.current) / 60)
+      setSec(Number(time.current) % 60)
+      Number(time.current -= 1) 
+    }, 1000); 
   },[])
-  
-  useEffect(() => {
-    const timer = setInterval(timerStart, 1000)  
-    return () => {
-      clearInterval(timer)
+
+  // 아이디, 전화번호 유효성체크
+  const validationCheck = () => {
+    if(name === "") {
+      (nameRef.current?.children[1].children[0] as HTMLElement).focus()
+      alert('이름을 입력해주세요')
+      return false
     }
-  },[timerStart])
+    if(phone === "") {
+      (phoneRef.current?.children[1].children[0] as HTMLElement).focus()
+      alert('전화번호를 입력해주세요')
+      return false
+    } 
+    idCheckSubmit()
+  }
+
+  // 인증번호 유효성 체크
+  const validationCheck2 = () => { 
+    if(checkNum === "") {
+      (checkNumRef.current?.children[1].children[0] as HTMLElement).focus()
+      alert('인증번호 6자리를 입력해주세요.')
+      return false
+    }
+    handleCertificateNumberCheck()
+  }
+
+  // 전화번호 유효성 검사
+  const phoneValueCheck = (str: string) => { 
+    const phoneRegex = /^(01[016789]{1})[0-9]{4}[0-9]{4}$/.test(str)  
+    setPhoneText(phoneRegex)
+  } 
+ 
+  // 로그인 아이디 찾기
+  const idCheckSubmit = useCallback(async() => { 
+    const data = {
+      user_name: name,
+      user_phone: phone
+    }
+
+    await axios({
+      method: 'POST',
+      url: `${import.meta.env.VITE_BACK_URL}/user/idFind`,
+      headers: { 'Content-Type': 'application/json' },
+      data: data, 
+      withCredentials: true 
+    })
+    .then((res) => {
+      if(res.data.code === 200) {
+        alert('인증번호가 발송되었습니다. 3분안에 인증번호를 입력해 주세요.')
+        setCertificateNum(!certificateNum)    
+        timerStart()
+      }else{
+        alert('가입시 입력하신 회원정보가 맞는지 다시 한번 확인해주세요.');
+        return false
+      }
+    })
+    .catch(err => console.log(err))
+  },[certificateNum, name, phone, timerStart]) 
+ 
+
+  // 인증번호 체크
+  const handleCertificateNumberCheck = useCallback(async() => {
+    const data = {
+      user_name : name,
+      certificateNum : checkNum
+    }
+    await axios({
+      method: 'POST',
+      url: `${import.meta.env.VITE_BACK_URL}/user/idCertificate`,
+      headers: { 'Content-Type': 'application/json' },
+      data: data, 
+      withCredentials: true 
+    })
+    .then((res) => {
+      if(res.data.code === 200 && intervalRef.current !== null) {
+        alert('인증이 완료되었습니다.')
+        console.log(res.data)
+        setId(res.data.result)
+        clearInterval(intervalRef.current)
+        setMin(3)
+        setSec(0)
+        time.current = 180
+        setStep(2) 
+        setCertificateNum(!certificateNum)   
+        return false
+      }else{
+        alert('인증이 실패하였습니다.')
+        return setCertificateNum(!certificateNum) 
+      }
+    })
+    .catch(err => console.log(err))
+  },[certificateNum, checkNum, name])
+ 
+  useEffect(() => {  
+    if(min === 0 && sec === 0 && intervalRef.current !== null) { 
+      clearInterval(intervalRef.current)
+      setMin(3)
+      setSec(0)
+      alert('시간이 초과되었습니다.') 
+      time.current = 180
+      setCertificateNum(!certificateNum)   
+    }
+    
+  },[certificateNum, min, sec, time])
   
 
+ 
   return (
     <CModal  
       icon="close"
@@ -38,72 +155,97 @@ const CLoginId = () => {
     >  
       <Box sx={Container}>
         <H1>CarpeDiem</H1> 
-        <Box sx={InputInner}>
-          <TextField 
-          sx={FormInputId}   
-            className={`${id && 'focused'}`}
-            onChange={
-              (event: ChangeEvent<HTMLInputElement>) => { 
-              setId(event.target.value)
-            }}
-            value={id}
-            label="아이디를 입력해주세요" variant="outlined" 
-          /> 
-        </Box>
         {
-          !certificateNum ?
+          step === 1 &&
           <> 
-            <Box> 
-              <TextField 
-                sx={FormInputPhone} 
-                className={`${phone && 'focused'}`}
-                onChange={
-                  (event: ChangeEvent<HTMLInputElement>) => { 
-                  setPhone(event.target.value)
-                }}
-                value={phone}
-                label="- 빼고 숫자만 입력해주세요" variant="outlined" 
-              />     
+           <Box sx={InputInner}>
+            <TextField 
+            sx={FormInputId}   
+              className={`${name && 'focused'}`}
+              onChange={
+                (event: ChangeEvent<HTMLInputElement>) => { 
+                setName(event.target.value)
+              }}
+              ref={nameRef}
+              value={name}
+              disabled={certificateNum ? true : false}
+              label="이름을 입력해주세요" variant="outlined" 
+            /> 
             </Box>
-            <CButton large type="blue" 
-              style={{ padding: '10px 0', mt: '10px', height: '45px' }}
-              onClick={() => setCertificateNum(!certificateNum)}
-            >
-              인증번호 받기
-            </CButton>
+            {
+              !certificateNum ?
+              <> 
+                <Box> 
+                  <TextField 
+                    sx={FormInputPhone} 
+                    className={`${phone && 'focused'}`}
+                    onChange={
+                      (event: ChangeEvent<HTMLInputElement>) => { 
+                      setPhone(event.target.value)
+                      phoneValueCheck(event.target.value)
+                    }}
+                    ref={phoneRef}
+                    value={phone}
+                    label="- 빼고 숫자만 입력해주세요" variant="outlined" 
+                  />     
+                </Box>
+                {
+                  (!phoneText && phone.length > 0) &&
+                  <Box sx={ErrorText}>전화번호를 정확하게 입력해주세요.</Box>
+                } 
+                <CButton large type="blue" 
+                  style={{ padding: '10px 0', mt: '10px', height: '45px' }}
+                  onClick={validationCheck}
+                >
+                  인증번호 받기
+                </CButton>
+              </>
+              :
+              <>
+                <Box sx={InputInner2}>
+                  <Box sx={{ position:'relative', width: '100%' }}>
+                    <TextField 
+                    sx={FormInputId}   
+                      className={`${ checkNum && 'focused'}`}
+                      onChange={
+                        (event: ChangeEvent<HTMLInputElement>) => { 
+                        setCheckNum(event.target.value)
+                      }}
+                      value={checkNum}
+                      ref={checkNumRef}
+                      label="인증번호 6자리를 입력해주세요." variant="outlined" 
+                    />
+                    <CertifiCateNumBox>
+                      {handleTimerNum()}
+                    </CertifiCateNumBox>
+                  </Box>
+                  {/* <CButton small type='blue'
+                  style={{ height: '42px', whiteSpace: 'pre' }}  
+                  onClick={}
+                  >
+                    재발송
+                  </CButton> */}
+                </Box>
+                <CButton large type="blue" 
+                  style={{ padding: '10px 0', mt: '10px', height: '45px' }}
+                  onClick={validationCheck2}
+                >
+                  확인
+                </CButton>
+              </>
+            } 
           </>
-          :
-          <>
-            <Box sx={InputInner2}>
-              <Box sx={{ position:'relative', width: '100%' }}>
-                <TextField 
-                sx={FormInputId}   
-                  className={`${ checkNum && 'focused'}`}
-                  onChange={
-                    (event: ChangeEvent<HTMLInputElement>) => { 
-                    setCheckNum(event.target.value)
-                  }}
-                  value={checkNum}
-                  label="인증번호 6자리를 입력해주세요." variant="outlined" 
-                />
-                <CertifiCateNumBox>
-                  {min > 0 ? Math.floor(min) : '0'} : {min > 0 ? sec : '00'}
-                </CertifiCateNumBox>
-              </Box>
-              <CButton small type='blue'
-               style={{ height: '42px', whiteSpace: 'pre' }}  
-              >
-                재요청
-              </CButton>
+        }
+        {
+          step === 2 &&
+          <Box> 
+            <Box sx={IdBox}>
+                회원님의 아이디는
+                <IdText>{id}</IdText>입니다.
             </Box>
-            <CButton large type="blue" 
-              style={{ padding: '10px 0', mt: '10px', height: '45px' }}
-              onClick={() => console.log('인증번호받기')}
-            >
-              확인
-            </CButton>
-          </>
-        } 
+            <CButton large type="blue" onClick={() => navigate('/login')}>로그인으로 돌아가기</CButton>
+          </Box>
+        }
       </Box>
     </CModal>
   )
@@ -198,3 +340,25 @@ const modalStyle = {
     backgroundColor:'#fff'
   }
 }
+const ErrorText = {
+  color: 'red',
+  fontSize: '12px',
+  fontWeight: '500', 
+  marginBottom: '10px'
+}  
+
+const IdBox = {
+  fontWeight: '600',
+  margin: '25px 0',
+  textAlign: 'center',
+  fontSize: '20px',
+  border: '1px solid #f1f1f1',
+  padding: '40px 0',
+  borderRadius: '5px',
+}
+
+const IdText = styled('span')(() => ({ 
+  display: 'block',
+  margin: '20px 0',
+  fontSize: '24px !important', 
+})) 

@@ -296,7 +296,7 @@ const JoinPage = () => {
           />    
           {
             (!birthText && birth.length > 0) &&
-            <Box sx={ErrorText}>생년월일이 일치하지 않습니다.</Box>
+            <Box sx={ErrorText}>생년월일 형식이 일치하지 않습니다.</Box>
           } 
         </Box>
         <Box> 
@@ -315,7 +315,7 @@ const JoinPage = () => {
         </Box>
         {
           (!phoneText && phone.length > 0) &&
-          <Box sx={ErrorText}>전화번호가 일치하지 않습니다.</Box>
+          <Box sx={ErrorText}>전화번호 형식이 일치하지 않습니다.</Box>
         } 
         <Box>
           <TextField 
@@ -333,7 +333,7 @@ const JoinPage = () => {
         </Box>
         {
           (!emailText && email.length > 0) &&
-          <Box sx={ErrorText}>이메일이 일치하지 않습니다.</Box>
+          <Box sx={ErrorText}>이메일 형식이 일치하지 않습니다.</Box>
         }
         <CButton onClick={validationCheck} large type='blue' style={{ mt: '30px', height:'45px' }}>
           회원가입

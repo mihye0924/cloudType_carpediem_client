@@ -61,7 +61,7 @@ const MainPage = () => {
     .then(( res ) => { 
       if(res.data.code === 200) {    
         setProfile(res.data.result[0]);
-      }
+      } 
     })
     .catch((err) => console.log(err))
   },[path, setProfile])
@@ -77,6 +77,8 @@ const MainPage = () => {
    .then(( res ) => {   
     if(res.data.code === 200) {  
       setList(res.data.result)
+    }else{
+      setList([])
     }
    })
    .catch((err) => console.log(err))

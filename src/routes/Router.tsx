@@ -7,7 +7,7 @@ import NotFoundPage from '@/pages/NotFoundPage'
 import CLoginId from '@/components/user/login/CLoginId'
 import CLoginPw from '@/components/user/login/CLoginPw'
 import AccountPage from '@/pages/AccountPage'
-import ListPage from '@/pages/listPage'
+import ListPage from '@/pages/ListPage'
 import Auth from './Auth'
 
 const Router = () => {

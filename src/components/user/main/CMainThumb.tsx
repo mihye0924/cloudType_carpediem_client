@@ -540,7 +540,7 @@ const ThumbFuctionBox2 = {
 const ThumbFuctionBox2Con = {
   '& p': {
     margin: '15px 0',
-    height: '15px',
+    height: '20px',
     color: 'text.default',
     textOverflow: 'ellipsis',
     overflow: 'hidden',

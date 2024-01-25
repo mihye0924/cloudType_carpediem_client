@@ -6,6 +6,7 @@ import { useNavigate } from 'react-router';
 import axios from 'axios';   
 import { useSetRecoilState } from 'recoil';
 import { userState } from '@/recoil/atoms/userState';
+import CAlert from '@/components/CAlert';
 
 // page
 const LoginPage = () => {   
@@ -13,6 +14,8 @@ const LoginPage = () => {
   const [id, setId] = useState('')
   const [pw, setPw] = useState('')  
   const user = useSetRecoilState(userState)
+  const [alert, setAlert] = useState("")
+  const [alertStatus, setAlertStatus] = useState("") 
 
   const idRef = useRef<HTMLInputElement>(null)
   const pwRef = useRef<HTMLInputElement>(null)
@@ -22,12 +25,12 @@ const LoginPage = () => {
   const validationCheck = () => {
     if(id === ''){ 
       (idRef.current?.children[1].children[0] as HTMLElement).focus()
-      alert('아이디를 입력해주세요.')
+      setAlert('아이디를 입력해주세요.')
       return false
     } 
     if(pw === ''){
       (pwRef.current?.children[1].children[0] as HTMLElement).focus()
-      alert('비밀번호를 입력해주세요.')
+      setAlert('비밀번호를 입력해주세요.')
       return false
     }
     return postData()
@@ -47,11 +50,11 @@ const LoginPage = () => {
     })
     .then((res) => {    
       if(res.data.code === 200){
-        alert('로그인 되었습니다.')  
-        if(res.data.user_id === "admin" ){
-          navigate(`/${id}`)
+        setAlert('로그인 되었습니다.')   
+        if(res.data.user_id === "admin" ){ 
+          setAlertStatus("adminSuccess")
         }else{
-          navigate(`/${id}/account`)  
+          setAlertStatus("loginSuccess")  
         }
         user({ 
           isAuth: res.data.isAuth,
@@ -59,9 +62,8 @@ const LoginPage = () => {
           role: res.data.role,
           token: res.data.token,
         }) 
-        return false
-      }else{
-        alert('로그인에 실패하였습니다.')
+      }else{ 
+        setAlert('로그인에 실패하였습니다.')
         return false 
       } 
     })
@@ -112,6 +114,7 @@ const LoginPage = () => {
             sx={FormCheck}
             control={<Checkbox />} 
             label="로그인 유지" 
+            onChange={() => setAlert("준비중입니다.")}
           /> 
         </Box>
         <Box sx={{
@@ -125,6 +128,26 @@ const LoginPage = () => {
           <LinkText href="/join">회원가입</LinkText>
         </Box>
       </Box>
+        { 
+          <CAlert
+            open={alert !== ""} 
+            onClose={() => {  
+              setAlert("")
+              switch(alertStatus) {
+                case "adminSuccess":
+                  navigate(`/${id}`)
+                  return false 
+                case "loginSuccess":
+                  navigate(`/${id}/account`) 
+                  return false 
+                default:
+                  return false
+              }
+            }} 
+          >
+            <>{alert}</>
+          </CAlert>
+        }
     </CModal>
   )
 }   

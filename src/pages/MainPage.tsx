@@ -17,14 +17,18 @@ import 'swiper/css';
 import 'swiper/css/navigation';
 import 'swiper/css/pagination';
 import 'swiper/css/scrollbar';  
-import { Box, Button, TextField, TextareaAutosize, styled } from "@mui/material"
+import { Box, Button, List, ListItem, ListItemButton, Stack, Switch, TextField, TextareaAutosize, styled } from "@mui/material"
 import { FilterOutlined } from "@mui/icons-material"
 import { userState } from "@/recoil/atoms/userState"
-import { useRecoilState, useRecoilValue, useSetRecoilState } from "recoil"
+import { useRecoilState, useSetRecoilState } from "recoil"
 import CButton from "@/components/CButton"
-import { profileModalStatus, WriteModalStatus } from "@/recoil/atoms/modalStatus"
+import { listModalStatus, menuDrawerStatus, profileModalStatus, writeModalStatus } from "@/recoil/atoms/modalStatus"
 import { profileStatus } from "@/recoil/atoms/profileStatus"
 import { listStatus } from "@/recoil/atoms/listState"
+import CAlert from "@/components/CAlert"
+import CMainThumb from "@/components/user/main/CMainThumb"
+import CDrawer from '@/components/CDrawer'; 
+import { modeState } from '@/recoil/atoms/modeState';  
 
 const MainPage = () => { 
   const path = useLocation().pathname.split('/')[1];  
@@ -37,8 +41,8 @@ const MainPage = () => {
 
   const [imgSavePath, setImgSavePath] = useState("profile-dummy.svg"); // 프로필 이미지 기본값
   const [isLoading, setIsLoading] = useState<boolean>(true);  //로딩
-  const user = useRecoilValue(userState); // 내 회원정보
-  const [write, setWrite] = useRecoilState(WriteModalStatus) // 글쓰기
+  const [user, sestUser] = useRecoilState(userState) //내 회원정보
+  const [write, setWrite] = useRecoilState(writeModalStatus) // 글쓰기
   const [imgSlideList, setImgSlideList] = useState([]) // 글쓰기 이미지
   const [content, setContent] = useState("");  // 글쓰기 텍스트
   const [edit, setEdit] = useRecoilState(profileModalStatus); // 프로필 편집
@@ -46,9 +50,45 @@ const MainPage = () => {
   const [imgIs, setImgIs] = useState(false); // 프로필 이미지 변경 유무
   const [name, setName] = useState("") // 프로필 이름
   const [website, setWebsite] = useState(""); // 프로필 웹사이트
-  const [intro, setIntro] = useState("");  // 프로필 소개
+  const [intro, setIntro] = useState("");  // 프로필 소개 
   const setList = useSetRecoilState(listStatus) // 리스트 데이터
+  const [alert, setAlert] = useState("") 
+  const [alertStatus, setAlertStatus] = useState("")
+  const [listModal, setListModal] = useRecoilState(listModalStatus)
  
+  const [mode, setMode] = useRecoilState(modeState)  
+  const [checked, setChecked] = useState(false) 
+  const [menu, setMenu] = useRecoilState(menuDrawerStatus)
+  const [confirm, setConfirm] = useState(false)
+ 
+  const handleSwitchChange = useCallback((event: ChangeEvent<HTMLInputElement>) => {
+    setChecked(event.target.checked)
+    setMode(mode === "light" ? "dark" : "light") 
+    setMenu(!menu)
+  },[menu, mode, setMenu, setMode])
+  
+ 
+
+  // 로그아웃
+  const handleLogOut = async() => { 
+    await axios({
+      method: "post",
+      url: `${import.meta.env.VITE_BACK_URL}/user/logout`, 
+      withCredentials: true
+    })
+    .then((res) => {
+      console.log(res,"res")
+      if(res.data.code === 200) {
+        sestUser({ 
+          isAuth: false,
+          user_id: "",
+          role: res.data.role,
+          token: "",
+        }) 
+      }
+      navigate('/login')
+    })
+  }
 
   // 프로필 데이터 가져오기
   const getProfileImgData = useCallback(async() => {
@@ -60,11 +100,15 @@ const MainPage = () => {
     })
     .then(( res ) => { 
       if(res.data.code === 200) {    
-        setProfile(res.data.result[0]);
-      } 
+        setProfile(res.data.result[0]); 
+      }else{ 
+        if(profile.account_name === "") {
+          navigate('/notFound') 
+        } 
+      }
     })
     .catch((err) => console.log(err))
-  },[path, setProfile])
+  },[navigate, path, profile.account_name, setProfile])
  
   // 리스트 데이터 가져오기
   const getListData = useCallback(async() => {
@@ -76,7 +120,7 @@ const MainPage = () => {
    })
    .then(( res ) => {   
     if(res.data.code === 200) {  
-      setList(res.data.result)
+      setList(res.data.result) 
     }else{
       setList([])
     }
@@ -84,12 +128,13 @@ const MainPage = () => {
    .catch((err) => console.log(err))
  },[path, setList]) 
 
+
   // 글쓰기 작성하기
   const handleCreateSubmit = useCallback(async() => {
     const data = {
       account_name : path,
       list_image: JSON.stringify(imgSlideList),
-      list_content: content
+      list_content: content, 
     }
     await axios({
       method: 'post',
@@ -97,28 +142,17 @@ const MainPage = () => {
       data: data,   
       withCredentials: true
     })
-    .then((res) => {
-      console.log(res.data.code,"res.data.code")
-      if(res.data.code === 200) {
-        alert('게시물 등록이 완료되었습니다.')
-        setWrite((prev) => { 
-          return {
-             ...prev, 
-              modal: false 
-        }})
-        return navigate(`/${path}`) 
+    .then((res) => { 
+      if(res.data.code === 200) {  
+        setAlert('게시물 등록이 완료되었습니다.') 
+        setAlertStatus("writeSuccess")
       }else{
-        alert('게시물 등록이 실패하였습니다.')
-        setWrite((prev) => { 
-          return {
-             ...prev, 
-              step: 1 
-        }})
-        return navigate(`/${path}`) 
+        setAlert('게시물 등록이 실패하였습니다.') 
+        setAlertStatus("writeFailed")
       }
     })
     .catch(err => console.log(err))
-  },[content, imgSlideList, navigate, path, setWrite])
+  },[content, imgSlideList, path])
    
   // 글쓰기 이미지 가져오기
   const handleChangeFile = useCallback(async(e: ChangeEvent<HTMLInputElement>) => {
@@ -158,13 +192,15 @@ const MainPage = () => {
         }
       }) 
     }else{
-      if(content === "") {
-        alert('문구를 입력해주세요')
+      if(content === "") { 
+        (contentRef.current as HTMLElement).focus()
+        setAlert('문구를 입력해주세요')  
         return false
       }
       handleCreateSubmit()
     }
   }
+ 
  
   // 프로필 편집 이벤트
   const handleEditSubmit = async() => {
@@ -182,13 +218,13 @@ const MainPage = () => {
       withCredentials: true 
     })
     .then((res) => {
-      if(res.data.code === 200) {
-        alert('프로필 변경에 성공하였습니다.');
-        setEdit(!edit)
-        return navigate(`/${name}`)
-      } else {
-        alert('프로필 변경에 실패하였습니다.')
-        return setEdit(!edit)
+      if(res.data.code === 200) {  
+        setAlert('프로필 변경에 성공하였습니다.'); 
+        setAlertStatus("editSuccess")
+
+      } else { 
+        setAlert('프로필 변경에 실패하였습니다.')  
+        setAlertStatus("editFailed")
       } 
     })
     .catch((err) => console.log(err))
@@ -219,14 +255,14 @@ const MainPage = () => {
     .catch((err) => console.log(err)) 
   },[setImgSavePath]); 
 
-  useEffect(() => {    
+  useEffect(() => {   
     setIsLoading(false)
     getProfileImgData()
     getListData()    
     setName(profile.account_name)
     setWebsite(profile.account_link)
-    setIntro(profile.account_info)
-  },[getListData, getProfileImgData, path, profile.account_info, profile.account_link, profile.account_name])
+    setIntro(profile.account_info)  
+  },[getListData, getProfileImgData, navigate, path, profile.account_info, profile.account_link, profile.account_name])
  
 
   return (
@@ -449,6 +485,113 @@ const MainPage = () => {
         </Box>
       </CModal>
     }
+    {
+      // 알랏창
+      alert !== "" && 
+      <CAlert
+        open={true} 
+        onClose={() => {
+          setAlert("")
+          switch (alertStatus) {
+            case "writeSuccess":
+              navigate(`/${path}`) 
+              setWrite((prev) => { 
+                return {
+                    ...prev, 
+                    modal: false 
+              }}) 
+              return 
+            case "writeFailed": 
+              setWrite((prev) => { 
+                return {
+                    ...prev, 
+                    step: 1 
+              }}) 
+              return 
+            case "editSuccess":
+              setEdit(!edit)
+              navigate(`/${path}`) 
+              return false
+            default:
+              return false
+          }
+        }} 
+      >
+        <>
+        {alert}
+        </>
+      </CAlert>
+    } 
+    {
+        // 로그아웃 확인창
+        confirm && 
+        <CAlert 
+          open={true} 
+          onYesButton={handleLogOut}
+          onNoButton={() => setConfirm(!confirm)}  
+        >
+          <>
+            전체 계정에서 로그아웃됩니다, <br/> 그래도 로그아웃 하시겠습니까?
+          </>
+        </CAlert>
+      } 
+    { 
+      // 게시물
+      user.isAuth && listModal &&
+      <CModal
+        style={modalStyle3}
+        icon="prev"
+        title="게시물" 
+        open={true}
+        onPrev={() => {navigate(`/${path}`), setListModal(!listModal)}}
+      >  
+        <CMainThumb />  
+      </CModal> 
+    } 
+    {   
+    // 메뉴
+      <CDrawer open={menu} onClose={() => setMenu(!menu)}> 
+      <MenuSection>
+          <h1>설정</h1>
+          <BoxInner>
+          <h2>계정</h2>
+            <List>
+              <ListItem>
+                <ListItemButton 
+                disableRipple 
+                  onClick={() => setConfirm(!confirm)}
+                >   
+                  <p>로그아웃</p>
+                </ListItemButton> 
+            </ListItem>
+            <ListItem>
+                <ListItemButton 
+                  disableRipple 
+                  onClick={() => navigate(`/${user.user_id}/account`)}
+                >   
+                  <p>계정전환</p>
+                </ListItemButton> 
+            </ListItem> 
+            </List>
+          </BoxInner>
+          <BoxInner>
+          <h2>화면설정</h2>
+            <List>
+              <ListItem> 
+                <p>나이트모드</p>
+                <Stack direction="row" spacing={1} alignItems="center"> 
+                  <AntSwitch 
+                    checked={checked}
+                    inputProps={{ 'aria-label': 'ant design' }} 
+                    onChange={handleSwitchChange}
+                  /> 
+                </Stack>
+              </ListItem> 
+            </List>
+          </BoxInner>
+        </MenuSection>
+      </CDrawer> 
+      } 
     </>
   )
 }
@@ -459,7 +602,7 @@ export default MainPage
 const modalStyle = {   
   '&.MuiBox-root': {
     textAlign: 'center',
-    backgroundColor: '#fff',
+    backgroundColor: 'background.default',
     width: '100%',
     maxWidth: '580px',
     maxHeight: '840px',
@@ -469,13 +612,15 @@ const modalStyle = {
     transform: 'translate(-50%, -50%)',
     'section': {
       '&:first-of-type': {
-        borderBottom: '1px solid #f1f1f1', 
         '& p': {
           fontSize: '14px',
           position: 'absolute',
           transform: 'translate(-50%, -50%)',
           top: '50%',
-          left: '50%', 
+          left: '50%',  
+        },
+        'svg': {
+          color: 'text.default',
         }
       },
       '&:last-of-type': {  
@@ -484,6 +629,7 @@ const modalStyle = {
         display: 'block',
         '& svg': { 
           fontSize: '60px',
+          color: 'text.default',
           marginBottom: '20px'
         }
       }
@@ -494,7 +640,7 @@ const modalStyle = {
   },
 }  
 const CreateListButton = {
-  width: '100%',
+  width: '35%',
   '&:hover':{
     backgroundColor: '#162753',
   }, 
@@ -508,7 +654,10 @@ const imgBox = {
   position: 'absolute',
   top: '50%',
   left: '50%',
-  transform: 'translate(-50%,-50%)'
+  transform: 'translate(-50%,-50%)',
+  '& p': {
+    color: 'text.default'
+  }
 } 
 const SwiperBox = styled('div')(({theme}) => ({  
   width: '100%', 
@@ -553,21 +702,13 @@ const SwiperBox = styled('div')(({theme}) => ({
     backgroundColor: '#2d4b97'
   }
 }))   
-const ContentBox = styled('div')(() => ({   
+const ContentBox = styled('div')(({theme}) => ({   
   padding: '10px',
   height: 'calc(100% - 50%)',
-  border: '1px solid #f1f1f1',
+  borderTop: theme.palette.background.border,
   overflowY: 'auto',
   '&::-webkit-scrollbar':{
-    width: '10px',
-    backgroundColor: '#f1f1f1'
-  },
-  '&::-webkit-scrollbar-thumb':{
-    width: '10px',
-    backgroundColor: '#2d4b97', 
-    backgroundClip: 'padding-box',
-    border: '2px solid transparent',
-    borderRadius: '30px'
+    width: '0',
   },
 }))    
 const profieImgBox = {
@@ -585,7 +726,8 @@ const profieImgBox = {
     width:'100%',
     height: 'auto'
   },
-  'p': {
+  '& p': {
+    color: 'text.default',
     fontWeight: '500',
     fontSize: '14px'
   }
@@ -604,6 +746,7 @@ const textAreaBox = {
     }
   },
   'span': {
+    color: 'text.default',
     display: 'inline-block',
     marginTop: '5px',
     fontWeight: '500',
@@ -616,23 +759,38 @@ const textAreaBox = {
 const modalStyle2 = {   
   '&.MuiBox-root': {
     textAlign: 'center',
-    backgroundColor: '#fff',
+    backgroundColor: 'background.default',
+    width: '100%',
+    maxWidth: '580px',
+    maxHeight: '840px',
+    position: 'relative',
+    top: '50%',
+    left: '50%',
+    transform: 'translate(-50%, -50%)',
     'section': {
-      '&:first-of-type' : {
-        borderBottom: '1px solid #f1f1f1',
+      '&:first-of-type': { 
         '& p': {
-          width: '100%',
-          textAlign: 'center',
+          fontSize: '14px',
+          position: 'absolute',
+          transform: 'translate(-50%, -50%)',
+          top: '50%',
+          left: '50%', 
+        },
+        'svg': {
+          color: 'text.default'
         }
       },
-      '&:last-of-type': {
+      '&:last-of-type': {  
+        display: 'flex',
         flexDirection: 'column',
+        position: 'relative',
+        maxHeight: 'calc( 840px - 50px )',  
         '& svg': { 
           fontSize: '60px',
           marginBottom: '20px'
-        },
+        }
       }
-    }
+    }, 
   },
   '.MuiSvgIcon-root': {
    color: '#393939'
@@ -686,6 +844,7 @@ const EditRow2 = {
   gap: '10px',
   marginTop: '10px',
   '& p': {
+    color: 'text.default',
     fontSize: '12px',
     flexBasis: '80px',
   },
@@ -709,11 +868,142 @@ const EditRow2 = {
 const blueBtn = {
   border: '1px solid #2d4b97', 
   marginTop: '10px',
+  backgroundColor: '#fff',
   width: '120px',
   height: '25px', 
   fontSize: '12px', 
   color: '#2d4b97', 
   '&:hover': {
-    backgroundColor: 'transparent'
+    backgroundColor: '#fff'
   }
 }
+ 
+
+// 게시물 
+const modalStyle3 = { 
+  '&.MuiBox-root': {
+    textAlign: 'center',
+    overflow: 'hidden',
+    backgroundColor: 'background.default',
+    width: '100%',
+    maxWidth: '1280px',
+    maxHeight: '840px',
+    position: 'relative',
+    top: '50%',
+    left: '50%',
+    transform: 'translate(-50%, -50%)',
+    'section': {
+      '&:first-of-type': { 
+        '& p': {
+          fontSize: '14px',
+          position: 'absolute',
+          transform: 'translate(-50%, -50%)',
+          top: '50%',
+          left: '50%', 
+        },
+        'svg': {
+          color: 'text.default'
+        }
+      },
+      '&:last-of-type': {
+        overflowY: 'auto',
+        position: 'relative',
+        maxWidth: '100%',
+        height: 'calc( 840px - 50px )', 
+        display: 'flex',
+        '& svg': { 
+          fontSize: '24px',
+        },
+        '&::-webkit-scrollbar':{
+          width: '0', 
+          overflow: 'hidden',
+        },
+      }
+    }, 
+  },
+  '.MuiSvgIcon-root': {
+   color: '#393939'
+  },
+}
+
+// 메뉴
+
+const MenuSection = styled('div')(({theme}) => ({ 
+  padding: '20px 10px',
+  '& h1': {
+    color: theme.palette.text.default,
+    fontSize: '24px',
+    fontWeight: '600',
+    margin: '0 10px 0 10px',
+  },
+  '& h2': {
+    color: theme.palette.text.default,
+    fontSize: '14px',
+    margin: '40px 10px 0 10px'
+  },
+  'ul': {
+    paddingTop: '0',
+    paddingBottom: '30px',
+    '& li':{
+      display: 'flex',
+      justifyContent: 'space-between',
+      padding: '25px 10px 0 10px',
+      '> div': {
+        padding: '0',
+        'p': {
+          color: theme.palette.text.default,
+          fontWeight: 500,
+          fontSize: '14px', 
+        },
+        '&:hover': {
+          backgroundColor: 'transparent'
+        }
+      },
+      'p': {
+        color: theme.palette.text.default, 
+        fontWeight: 500,
+        fontSize: '14px', 
+      },
+    }
+  }
+}))  
+const BoxInner = styled('div')(({theme}) => ({
+  borderBottom: theme.palette.background.border 
+}))  
+const AntSwitch = styled(Switch)(({ theme }) => ({
+  width: 33,
+  height: 20,
+  padding: 0,
+  display: 'flex',
+  borderRadius: '25px',
+  '&:active': {
+    '& .MuiSwitch-thumb': {
+      width: 15,
+    },
+    '& .MuiSwitch-switchBase.Mui-checked': {
+      transform: 'translateX(9px)',
+    },
+  },
+  '& .MuiSwitch-switchBase': {
+    padding: 4,
+    '&.Mui-checked': {
+      transform: 'translateX(12px)',
+      color: '#fff',
+      '& + .MuiSwitch-track': {
+        opacity: 1,
+        backgroundColor: theme.palette.mode === 'dark' ? '#177ddc' : '#2d4b97',
+      },
+    },
+  },
+  '& .MuiSwitch-thumb': {
+    boxShadow: '0 2px 4px 0 rgb(0 35 11 / 20%)',
+    width: 12,
+    height: 12,
+    borderRadius: 6,
+    backgroundColor: 
+      theme.palette.mode === 'dark' ? '#fff' : '#fff',
+    transition: theme.transitions.create(['width'], {
+      duration: 200,
+    }),
+  },
+}));

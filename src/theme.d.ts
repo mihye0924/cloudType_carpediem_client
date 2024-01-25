@@ -19,16 +19,16 @@ declare module "@mui/material/styles" {
       hoverText: string;
       border: string
     }, 
-    txt: {
+    boxShadow: {
       default: string;
-      main: string
     }
   }
-  interface TypeBackground {  
-    underline: string; 
+  interface TypeBackground { 
+    border: string;  
+    replyContent: string;
   }
   interface TypeText {  
     default: string; 
-    main: string;
-  }
+    main: string; 
+  } 
 }

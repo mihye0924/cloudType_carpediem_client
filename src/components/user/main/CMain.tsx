@@ -8,6 +8,8 @@ import { userState } from "@/recoil/atoms/userState"
 import { profileModalStatus } from "@/recoil/atoms/modalStatus" 
 import { profileStatus } from "@/recoil/atoms/profileStatus"
 import { listStatus } from "@/recoil/atoms/listState"
+import CAlert from "@/components/CAlert"
+import { useState } from "react"
   
 
 const CMain = () => { 
@@ -16,12 +18,13 @@ const CMain = () => {
   const [edit, setEdit] = useRecoilState(profileModalStatus); // 프로필 편집
   const profile = useRecoilValue(profileStatus); // 프로필 데이터
   const list = useRecoilValue(listStatus)
+  const [alert, setAlert] = useState("")
+  // const [alertStatus, setAlertStatus] = useState("") 
 
   //프로필 링크 클릭 
   const handleAccountLink = (url: string) => {   
     window.location.href = `https://${url}`
-  }  
-
+  }   
   return (
     <Section>
       {
@@ -96,28 +99,50 @@ const CMain = () => {
             }
           </Box>
           <Box sx={ProfileBtn}>
-            <CButton 
-              type="lightgray" 
-              style={{ flex: 1, whiteSpace: 'pre', height: '35px' }}
-              onClick={() => { setEdit(!edit) }}
-            >
-              프로필편집
-            </CButton> 
-            <CButton 
-              type="lightgray" 
-              style={{ flex: 1, whiteSpace: 'pre', height: '35px' }}
-              onClick={() => console.log('프로필공유')}
-            >
-              프로필공유
-            </CButton>  
-            <IconButton 
-              disableRipple
-              sx={PlusFriendsBtn} 
-              aria-label="menu" 
-              onClick={() => console.log('플러스친구')}
-            > 
-              <PersonAddAlt />
-            </IconButton>
+            {
+              user.account_name === path ?
+              <>
+                <CButton 
+                type="lightgray" 
+                style={{ flex: 1, whiteSpace: 'pre', height: '35px' }}
+                onClick={() => { setEdit(!edit) }}
+              >
+                프로필편집
+              </CButton> 
+              <CButton 
+                type="lightgray" 
+                style={{ flex: 1, whiteSpace: 'pre', height: '35px' }}
+                onClick={() => console.log('프로필공유')}
+              >
+                프로필공유
+              </CButton>  
+              <IconButton 
+                disableRipple
+                sx={PlusFriendsBtn} 
+                aria-label="menu" 
+                onClick={() => console.log('플러스친구')}
+              > 
+                <PersonAddAlt />
+              </IconButton>
+            </>
+            :
+            <>
+              <CButton 
+                  type="blue" 
+                  style={{ flex: 1, whiteSpace: 'pre', height: '35px' }}
+                  onClick={() => setAlert("준비 중입니다.")}
+                >
+                  팔로우
+              </CButton> 
+              <CButton 
+                type="lightgray" 
+                style={{ flex: 1, whiteSpace: 'pre', height: '35px' }}
+                onClick={() => setAlert("준비 중입니다.")}
+              >
+                메시지 보내기
+              </CButton>  
+            </>
+            }
           </Box>
         </Box>
         :
@@ -138,7 +163,7 @@ const CMain = () => {
             </Box> 
             <Box 
               sx={{ display: 'flex', flexDirection: 'column', justifyContent: 'space-between', flex: 1}}
-            > 
+            >  
               <Box> 
                 <Box sx={{ display: 'flex', alignItems: 'center' }}> 
                   <Name>{path}</Name>
@@ -161,20 +186,52 @@ const CMain = () => {
                       </CButton> 
                     </Box>
                   }
-                </Box>
+                </Box>  
+                <List sx={ProfileList2}>
+                  <ListItem> 
+                    <ListItemButton
+                      disableRipple 
+                      sx={{ padding:0 }} 
+                      onClick={() => setAlert("로그인이 필요합니다.")}
+                    > 
+                      <p>게시물</p>
+                      <p>{list.length}</p>
+                    </ListItemButton> 
+                  </ListItem> 
+                  <ListItem> 
+                    <ListItemButton 
+                      disableRipple
+                      sx={{  padding:0 }} 
+                      onClick={() => setAlert("로그인이 필요합니다.")}
+                    > 
+                      <p>팔로워</p>
+                      <p>{profile.account_followers}</p>
+                    </ListItemButton> 
+                  </ListItem> 
+                  <ListItem> 
+                    <ListItemButton 
+                    disableRipple
+                      sx={{  padding:0 }} 
+                      onClick={() => setAlert("로그인이 필요합니다.")}
+                    >  
+                      <p>팔로잉</p>
+                      <p>{profile.account_following}</p>
+                    </ListItemButton> 
+                  </ListItem> 
+                </List>
               </Box>
               <Box sx={ProfileBtn}>
                 <CButton 
                   type="blue" 
                   style={{ flex: 1, whiteSpace: 'pre', height: '35px' }}
-                  onClick={() => console.log('팔로우')}
+                  onClick={() => setAlert("로그인이 필요합니다.")}
                 >
                   팔로우
                 </CButton> 
                 <CButton 
                   type="lightgray" 
                   style={{ flex: 1, whiteSpace: 'pre', height: '35px' }}
-                  onClick={() => console.log('메시지 보내기')}
+                  onClick={() => setAlert("로그인이 필요합니다.")}
                 >
                   메시지 보내기
                 </CButton>  
@@ -182,7 +239,7 @@ const CMain = () => {
                   disableRipple
                   sx={PlusFriendsBtn} 
                   aria-label="menu" 
-                  onClick={() => console.log('플러스친구')}
+                  onClick={() => setAlert("로그인이 필요합니다.")}
                 > 
                   <PersonAddAlt />
                 </IconButton>
@@ -190,6 +247,16 @@ const CMain = () => {
             </Box>
           </Box>
         </Box>
+      }  
+      { 
+        <CAlert
+          open={alert !== ""} 
+          onClose={() => {  
+            setAlert("")
+          }} 
+        >
+          <>{alert}</>
+        </CAlert>
       }
     </Section>
   )
@@ -199,7 +266,7 @@ export default CMain
 
 
 const Section = styled('section')(({theme}) => ({
-  borderBottom: theme.palette.background.underline
+  borderBottom: theme.palette.background.border
 })) 
 const Container = {
   width: '100%',
@@ -250,6 +317,32 @@ const ProfileList = {
   },
   '& p:nth-of-type(2)' : {
     marginTop: '10px',
+    fontWeight: '400',
+    fontSize: '14px',
+    whiteSpace: 'pre',
+    color: 'text.default'
+  }
+} 
+const ProfileList2 = {
+  display:'flex', 
+  flexDirection: 'row',
+  alignItems: 'center',
+  width: '260px',
+  padding: '5px 0',
+  '& li' : {
+    padding: 0,
+    marginRight: '15px',
+  },
+  '& div' : {
+    backgroundColor: 'transparent !important',
+  },
+  '& p:nth-of-type(1)' : {
+    fontWeight: '400',
+    color: 'text.default',
+    fontSize: '14px',
+  },
+  '& p:nth-of-type(2)' : { 
+    marginLeft: '10px',
     fontWeight: '400',
     fontSize: '14px',
     whiteSpace: 'pre',

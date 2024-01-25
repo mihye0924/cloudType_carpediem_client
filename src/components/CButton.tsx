@@ -3,7 +3,7 @@ import { ForwardedRef, forwardRef } from "react";
 
  
 interface ButtonProps {
-  children: string | JSX.Element | JSX.Element[];
+  children: string | JSX.Element | JSX.Element[] | (string | number)[];
   style?: object;
   type?: string;
   large?: boolean;
@@ -28,14 +28,14 @@ const CButton = forwardRef((props:ButtonProps, ref:ForwardedRef<HTMLButtonElemen
           props.type === 'blueBorder' ? '1px solid #2d4b97' : '2px solid transparent',
         bgcolor: 
           props.type === 'blue' ? 'blueBtn.main' : 
-          props.type === 'lightgray' ? 'grayBtn.main' : '',  
+          props.type === 'lightgray' ? 'grayBtn.main' : '#fff',  
           '&:hover': { 
           border: props.type === 'lightgray' ? 2 : '',
           borderColor: props.type === 'lightgray' ? 'grayBtn.border': '',
           bgcolor : 
             props.type === 'blue' ? 'blueBtn.dark' : 
-            props.type === 'lightgray' ? 'grayBtn.light' : '', 
-          color: props.type === 'lightgray' ? 'grayBtn.hoverText' : '' 
+            props.type === 'lightgray' ? 'grayBtn.light' : '#ebebeb', 
+            color: props.type === 'lightgray' ? 'grayBtn.hoverText' : '' 
           },
         color: 
           props.type === 'blue' ? 'blueBtn.contrastText' : 

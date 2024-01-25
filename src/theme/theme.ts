@@ -8,8 +8,9 @@ export const getDesignTokens = (mode: PaletteMode) => ({
     ...(mode === 'dark' ? {
       background: {
         default: '#0e0e0e', // 배경(검정)
-        underline: '1px solid #323232', 
-        contrastText: "#fff"
+        border: '1px solid #1a1a1a', 
+        contrastText: "#fff",
+        replyContent: '#1c1c1c'
       },  
       blueBtn: {// 버튼(파랑)
         main: '#2d4b97',
@@ -25,19 +26,23 @@ export const getDesignTokens = (mode: PaletteMode) => ({
       },
       text:{  
         default: '#fff',
-        main: '#fff',
+        main: '#fff',  
       },
       form: { 
         main: '#2d4b97',
         input: '#fff !important',
         checkbox: '#2d4b97'
+      },
+      boxShadow: {
+        default: '-5px 5px 10px -1px rgb(255 255 255 / 8%)'
       }
     } : {
     // 밝을 때
       background: { // 배경
         default: '#fff', // 배경(흰색)
-        underline: '1px solid #f1f1f1', 
+        border: '1px solid #f1f1f1', 
         contrastText: '#fff',
+        replyContent: '#f1f1f1'
       }, 
       blueBtn: {
         main: '#2d4b97',
@@ -53,17 +58,19 @@ export const getDesignTokens = (mode: PaletteMode) => ({
       },
       text:{  
         default: '#393939',
-        main: '#2d4b97' 
+        main: '#2d4b97', 
       },
       form: { 
         main: '#2d4b97',
         input: '#2d4b97 !important',
         checkbox: '#2d4b97'
+      },
+      boxShadow: {
+        default: '-5px 5px 10px -1px rgb(103 103 103 / 37%)'
       }
     })
   }, 
   typography: {
     fontFamily: 'Noto Sans KR, sans-serif'
-  }, 
-
+  },
 }); 

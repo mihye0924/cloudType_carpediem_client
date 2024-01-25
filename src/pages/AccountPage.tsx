@@ -1,3 +1,4 @@
+import CAlert from "@/components/CAlert"
 import CButton from "@/components/CButton"
 import CModal from "@/components/CModal"
 import CLoading from "@/components/user/CLoading"  
@@ -6,9 +7,8 @@ import { DeleteOutline } from "@mui/icons-material"
 import { Box, List,  ListItem, TextField, styled, Button } from "@mui/material"
 import axios from "axios"
 import { ChangeEvent, useCallback, useEffect, useRef, useState } from "react"  
-import { useNavigate } from "react-router"
-import { Link } from "react-router-dom" 
-import { useRecoilValue } from "recoil"
+import { useNavigate } from "react-router" 
+import { useRecoilState } from "recoil"
 
 interface accountType { 
     user_id: "",
@@ -21,7 +21,7 @@ interface accountType {
 
 
 const AccountPage = () => {  
-  const user = useRecoilValue(userState)
+  const [user, setUser] = useRecoilState(userState)
   const navigate = useNavigate() 
   const [result, setResult] = useState([])
   const [isLoading, setIsLoading] = useState(true)
@@ -30,7 +30,10 @@ const AccountPage = () => {
   const [imgSavePath, setImgSavePath] = useState("profile-dummy.svg")
   const [name, setName] = useState('');
   const nameRef = useRef<HTMLInputElement>(null)
-   
+  const [alert, setAlert] = useState("")
+  const [alertStatus, setAlertStatus] = useState("") 
+  const [deleteAlertConfirm, setDeleteAlertConfirm] = useState(false)
+  const [deleteAccount, setDeleteAccount] = useState("")
 
   // 데이터 가져오기
   const postData = useCallback(async() => { 
@@ -59,16 +62,15 @@ const AccountPage = () => {
         return setStep(num)
       case 2:
         if(name === "") {
-          alert('닉네임을 입력해주세요.')
-          return false
+          setAlert('닉네임을 입력해주세요.') 
+          setAlertStatus("")
         }else if(name !== null){  
-          const isEngExp = EngExp(name);
-          console.log(name, isEngExp)
+          const isEngExp = EngExp(name); 
           if(isEngExp) { 
             return handleNickNameCheck(); 
           }else{
-            alert('영문으로만 입력해주세요')
-            return false
+            setAlert('영문으로만 입력해주세요') 
+            setAlertStatus("")
           } 
         }  
     }
@@ -114,11 +116,11 @@ const AccountPage = () => {
     })
     .then((res) => {  
       if(res.data.code === 200) {
-        alert('사용 가능한 닉네임입니다.')
-        return setStep(2)
+        setAlert('사용 가능한 닉네임입니다.')
+        setAlertStatus("possible") 
       }else{
-        alert('사용 불가능한 닉네임입니다.')
-        return setStep(1)
+        setAlert('사용 불가능한 닉네임입니다.')
+        setAlertStatus("impossible") 
       }
     })
     .catch((err) => console.log(err))
@@ -139,48 +141,69 @@ const AccountPage = () => {
     })
     .then((res) => {
       if(res.data.code === 200) {
-        alert('계정이 생성되었습니다.')
-        navigate(`/${name}`)
-        return false
+        setAlert('계정이 생성되었습니다.')
+        setAlertStatus("create")  
+        setUser((prev) => {
+          return{ 
+            ...prev,
+            account_name: name,  
+          }
+        })
       }else{
-        alert('계정 생성이 실패하였습니다.')
-        navigate("/")
-        return false
+        setAlert('계정 생성이 실패하였습니다.')
+        setAlertStatus("faiiled")  
       }
     })
     .catch((err) => console.log(err))
-  },[imgSavePath, name, navigate, user.user_id]) 
+  },[imgSavePath, name, setUser, user.user_id]) 
 
   // 계정 삭제하기
-  const handleDeleteAccount = useCallback(async(nickName: string) => {
-    
+  const handleDelete = async() => {
+    console.log(deleteAccount,"ddd") 
     const data = {
       user_id: user.user_id,
-      account_name: nickName
-    }
+      account_name: deleteAccount
+    } 
+    await axios({
+      method: 'delete',
+      url: `${import.meta.env.VITE_BACK_URL}/account/delete`,
+      data: data, 
+      withCredentials: true
+    })
+    .then((res) => {
+      if(res.data.code === 200) {
+        setAlert('계정이 삭제되었습니다.');
+        setAlertStatus("delete")
+        setUser((prev) => {
+          return{ 
+            ...prev,
+            account_name: "",  
+          }
+        })
+      }else{ 
+        setAlert('계정 삭제를 실패하였습니다.');
+        navigate(`/${user.user_id}/account`)
+      }
+    })
+    .catch(err => console.log(err)) 
+  }
+  // 계정 삭제 확인창
+  const handleDeleteAccount = useCallback(async(nickName: string) => { 
+    setDeleteAlertConfirm(!deleteAlertConfirm)  
+    setDeleteAccount(nickName)
+  },[deleteAlertConfirm])
 
-    if(confirm('계정을 삭제하시겠습니까?')) { 
-      await axios({
-        method: 'delete',
-        url: `${import.meta.env.VITE_BACK_URL}/account/delete`,
-        data: data, 
-        withCredentials: true
-      })
-      .then((res) => {
-        if(res.data.code === 200) {
-          alert('계정이 삭제되었습니다.');
-          navigate(`/${user.user_id}/account`)
-          window.location.reload();
-          return false
-        }
-      })
-      .catch(err => console.log(err)) 
-    }else {
-      alert('계정 삭제를 실패하였습니다.');
-      return false
-    }
-  },[navigate, user.user_id])
- 
+
+  const handleAccountLogin = (name: string) => {
+    setUser((prev) => {
+      return{ 
+        ...prev,
+        account_name: name,  
+      }
+    }) 
+    navigate(`/${name}`)
+  }
+  
   useEffect(() => {   
     postData() 
     setIsLoading(false) 
@@ -200,7 +223,7 @@ const AccountPage = () => {
                 result.map((item: accountType) => {
                   return(
                   <ListItem key={item.account_no}> 
-                    <Link to={`/${item.account_name}`}>  
+                    <CButton onClick={() => handleAccountLogin(item.account_name)}>  
                       <Box>
                         <img src={
                           `${item.account_profile}` === "profile-dummy.svg" ? 
@@ -211,7 +234,7 @@ const AccountPage = () => {
                       <span>
                         {item.account_name} 
                       </span>
-                    </Link>
+                    </CButton>
                     <CButton 
                       style={DeleteBtn} 
                       onClick={() => handleDeleteAccount(item.account_name)}
@@ -229,7 +252,7 @@ const AccountPage = () => {
               </NotResultListFound>
             }
             <CButton 
-              type="blueBorder"
+              type="blue"
               large 
               style={AccountCreate}
               onClick={() => handleNextStep(1)}
@@ -322,6 +345,47 @@ const AccountPage = () => {
           </>
         </CModal>
       }
+      {
+        <CAlert
+          open={deleteAlertConfirm}
+          onYesButton={handleDelete}
+          onNoButton={() => setDeleteAlertConfirm(!deleteAlertConfirm)} 
+        >
+          <>계정을 삭제하시겠습니까?</>
+        </CAlert>
+      }
+      { 
+        <CAlert
+          open={alert !== ""} 
+          onClose={() => {  
+            setAlert("")
+            switch(alertStatus) {
+              case "possible":
+                setStep(2)
+                return false
+              case "impossible":
+                setStep(1)
+                return false
+              case "create":
+                navigate(`/${name}`)
+                return false
+              case "failed":
+                navigate(`/`)
+                return false
+                case "delete": 
+                navigate(`/${user.user_id}/account`)
+                window.location.reload();
+                return false 
+              default:
+                return false
+            }
+          }} 
+        >
+          <>
+          {alert}
+          </>
+        </CAlert>
+      }
       </Section>
     </Container>
   )
@@ -387,7 +451,7 @@ const AccountWrap = {
   'li:not(:last-child)': {
     marginBottom: '10px'
   },
-  'a': {
+  'button': {
     display: 'flex',
     flexWrap: 'wrap',
     width: '100%',
@@ -419,6 +483,11 @@ const AccountCreate = {
   justifyContent: 'center !important',
   marginTop: '30px',
   fontSize: '12px',
+  '&.MuiButton-root': {
+    '&:hover':{
+      backgroundColor: '#162753',
+    }
+  }
 }
 const FormInputId = { 
   width: '100%',  
@@ -436,28 +505,49 @@ const FormInputId = {
     borderWidth: '1px !important'
   },
 }
+ 
 const CreateModal = {  
   '&.MuiBox-root': {
-    backgroundColor: '#ebf1ff !important'
+    textAlign: 'center',
+    backgroundColor: 'background.default',
+    width: '100%',
+    maxWidth: '580px',
+    maxHeight: '840px',
+    position: 'relative',
+    top: '50%',
+    left: '50%',
+    transform: 'translate(-50%, -50%)',
    },
    '.MuiSvgIcon-root': {
     color: '#2d4b97'
    },
-  'section:nth-of-type(2)': { 
-    flexDirection: 'column',
-    lineHeight: '1.5',
-    padding: '0 20px', 
-    alignItems: 'baseline',
-    justifyContent: 'flex-start', 
+  'section': {
+    '&:first-of-type': {
+      'svg': {
+        color: 'text.default'
+      }
+    },
+    '&:nth-of-type(2)': { 
+      flexDirection: 'column',
+      maxHeight: 'calc( 840px - 50px )',  
+      lineHeight: '1.5',
+      padding: '0 20px', 
+      alignItems: 'baseline',
+      justifyContent: 'flex-start', 
     'h1': {
       fontWeight: '500',
+      color: 'text.default',
       fontSize: '20px',
+      marginTop: '10px',
       marginBottom: '5px'
     },
-    'p': {
+    '& p': {
+      color: 'text.default',
+      marginTop: '10px',
       fontSize: '14px', 
     }
-  } 
+  }
+  }
 }
 const NextBtn = {
   marginTop: '10px' 
@@ -491,7 +581,10 @@ const ProfileButton = {
   margin: '30px 0 10px 0',
 } 
 const DeleteBtn = {
-  minWidth: '40px',  
+  '&.MuiButton-root': {
+    width: '0',
+  },
+  minWidth: '30px',  
   'svg': { 
     color: '#2d4b97'
   }

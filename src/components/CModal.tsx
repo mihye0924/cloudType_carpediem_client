@@ -16,13 +16,17 @@ interface ModalProps {
   icon?: string;
   style?: object;
   darkMode? : boolean;
-  nextTitle?: string;
+  nextTitle?: string;  
 }
  
 const CModal = (props: ModalProps) => {  
   return (  
-    <Modal open={props.open} onClose={props.onClose}> 
-      <Box sx={{ 
+    <Modal 
+      open={props.open}
+      onClose={props.onClose}  
+    > 
+      <Box 
+        sx={{ 
           ...props.style,
           width: '100%', 
           height:'100%', 
@@ -30,7 +34,8 @@ const CModal = (props: ModalProps) => {
           '&:focus': {
             outline: 'none',
           }
-         }}> 
+        }}
+      > 
         <Section1>
           <Box>
             {
@@ -69,17 +74,18 @@ const CModal = (props: ModalProps) => {
 }
 
 export default CModal;
-
-
-const Section1 = styled('section')(() => ({
+ 
+const Section1 = styled('section')(({theme}) => ({
   position: 'relative', 
   display: 'flex',
   justifyContent: 'space-between',
   padding: '10px',
   height: '50px', 
   alignItems: 'center', 
+  borderBottom: theme.palette.background.border, 
   'p': {
     fontWeight: 'bold',
+    color: theme.palette.text.default
   }
 })) 
 const Section2 = styled('section')(() => ({

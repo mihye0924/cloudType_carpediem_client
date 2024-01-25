@@ -60,7 +60,7 @@ const Section = styled('section')(({theme}) => ({
   '&.no-scrollbar::-webkit-scrollbar': {
     display:'none'
   },
-  borderBottom: theme.palette.background.underline
+  borderBottom: theme.palette.background.border
 })) 
 const StoryListWrap = {
   position: 'relative',

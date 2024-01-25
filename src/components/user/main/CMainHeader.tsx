@@ -1,20 +1,16 @@
-import { DensityMedium, NotificationsNone, DarkMode, LightMode, ArrowBackIos } from '@mui/icons-material'; 
+import { DensityMedium, NotificationsNone, ArrowBackIos } from '@mui/icons-material'; 
 import { Box, IconButton, styled } from '@mui/material'; 
-import { useRecoilState, useRecoilValue } from 'recoil';
-import { modeState } from '@/recoil/atoms/modeState'; 
-import { Link, useLocation } from 'react-router-dom';
-import { userState } from '@/recoil/atoms/userState';
-
+import { useRecoilState, useRecoilValue } from 'recoil'; 
+import { Link, useLocation, useNavigate } from 'react-router-dom';
+import { userState } from '@/recoil/atoms/userState';   
+import CButton from '@/components/CButton';
+import { menuDrawerStatus } from '@/recoil/atoms/modalStatus';
 
 const CMainHeader = () => {   
-  const [mode, setMode] = useRecoilState(modeState)  
   const user = useRecoilValue(userState)
   const path = useLocation().pathname.split('/')[1]
-  
-  const handleDarkMode = () => {
-    setMode(mode === "light" ? "dark" : "light") 
-  }
-
+  const navigate = useNavigate() 
+  const [menu, setMenu] = useRecoilState(menuDrawerStatus)
 
   return (
     <Header> 
@@ -23,14 +19,6 @@ const CMainHeader = () => {
         <Box sx={Container}> 
           <Logo><Link to="">CarpeDiem</Link></Logo>
           <Box>  
-            <IconButton  
-              disableRipple
-              sx={DarkLightIcon} 
-              aria-label="darkLight" 
-              onClick={handleDarkMode}
-            >
-              {mode === "dark" ? <LightMode /> : <DarkMode />}
-            </IconButton>
             <IconButton 
               disableRipple
               sx={AlarmIcon} 
@@ -38,12 +26,12 @@ const CMainHeader = () => {
               onClick={() => console.log('알림')}
             >
               <NotificationsNone sx={{fontSize: '25px'}} /> 
-            </IconButton>
+            </IconButton> 
             <IconButton 
               disableRipple
               sx={MenuIcon} 
               aria-label="menu" 
-              onClick={() => console.log('메뉴')}
+              onClick={() => setMenu(!menu)}
             >
               <DensityMedium sx={{fontSize: '20px'}} /> 
             </IconButton> 
@@ -60,16 +48,12 @@ const CMainHeader = () => {
               <ArrowBackIos sx={{fontSize: '16px'}}  />
             </IconButton>
           <NickName>{path}</NickName>
-          <IconButton  
-            disableRipple
-            sx={DarkLightIcon} 
-            aria-label="darkLight" 
-            onClick={handleDarkMode}
-          >
-            {mode === "dark" ? <LightMode /> : <DarkMode />}
-          </IconButton>
+          <Box>
+            <CButton style={SmallButton} type='blue' onClick={() => navigate('/login')}>로그인</CButton>
+            <CButton style={SmallButton} type='blueBorder' onClick={() => navigate('/join')}>가입하기</CButton>
+          </Box>
         </Box>
-      }
+      } 
     </Header>
   )
 }
@@ -77,7 +61,7 @@ const CMainHeader = () => {
 export default CMainHeader
 
 const Header = styled('header')(({theme}) => ({
-  borderBottom: theme.palette.background.underline
+  borderBottom: theme.palette.background.border
 }))  
 const Container = { 
   display: 'flex',
@@ -99,14 +83,6 @@ const Logo = styled('h1')(({theme}) => ({
     marginBottom: '30px',
   }
 })) 
-const DarkLightIcon = {
-  padding: 0,
-  margin:'5px',
-  color: 'text.default',
-  '&:hover': {
-    bgcolor: 'transparent'
-  }
-}  
 const AlarmIcon = {
   padding: 0,
   margin:'5px',
@@ -139,3 +115,11 @@ const NickName = styled('h1')(({theme}) => ({
   fontSize: '14px', 
   fontWeight: 500,
 })) 
+ 
+const SmallButton = {
+  padding:'5px 8px',
+  marginLeft: '10px',
+  '&.MuiButton-root' : {
+    minWidth: 'fit-content !important',
+  }
+}

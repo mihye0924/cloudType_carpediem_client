@@ -4,6 +4,7 @@ import { Box, TextField, styled } from '@mui/material';
 import { ChangeEvent, useCallback, useEffect, useRef, useState } from 'react';  
 import { useNavigate } from 'react-router';
 import axios from 'axios';  
+import CAlert from '@/components/CAlert';
    
  
 // page
@@ -19,6 +20,9 @@ const CLoginPw = () => {
   const [min, setMin] = useState(3);
   const [sec, setSec] = useState(0) 
   const navigate = useNavigate()   
+  const [alert, setAlert] = useState("")
+  const [alertStatus, setAlertStatus] = useState("") 
+  
 
   const time = useRef<number>(180)
   const idRef = useRef<HTMLInputElement>(null)
@@ -27,9 +31,7 @@ const CLoginPw = () => {
   const pwRef = useRef<HTMLInputElement>(null) 
   const pwCheckRef = useRef<HTMLInputElement>(null) 
   const intervalRef = useRef<ReturnType<typeof setInterval> | null>(null)
-  const [pwText, setPwText] = useState(false); 
-  
-  
+  const [pwText, setPwText] = useState(false);  
   // 타이머 텍스트
  const handleTimerNum = () => {  
   return (min > 0 ? Math.floor(min) : '0') + ":" + (min > 0 ? sec : '0')
@@ -55,7 +57,7 @@ const CLoginPw = () => {
       clearInterval(intervalRef.current)
       setMin(3)
       setSec(0)
-      alert('시간이 초과되었습니다.') 
+      setAlert('시간이 초과되었습니다.') 
       time.current = 180
       setCertificateNum(!certificateNum)   
     }
@@ -66,12 +68,12 @@ const CLoginPw = () => {
   const validationCheck = () => {
     if(id === "") {
       (idRef.current?.children[1].children[0] as HTMLElement).focus()
-      alert('아이디를 입력해주세요')
+      setAlert('아이디를 입력해주세요')
       return false
     }
     if(phone === "") {
       (phoneRef.current?.children[1].children[0] as HTMLElement).focus()
-      alert('전화번호를 입력해주세요')
+      setAlert('전화번호를 입력해주세요')
       return false
     } 
     fwCheckFind()
@@ -81,7 +83,7 @@ const CLoginPw = () => {
   const validationCheck2 = () => { 
     if(checkNum === "") {
       (checkNumRef.current?.children[1].children[0] as HTMLElement).focus()
-      alert('인증번호 6자리를 입력해주세요.')
+      setAlert('인증번호 6자리를 입력해주세요.')
       return false
     }
     handleCertificateNumberCheck()
@@ -89,16 +91,20 @@ const CLoginPw = () => {
 
   // 비밀번호 유효성체크
   const validationCheck3 = () => {
-    if(pwCheck === "") {
+    if(pw === "") {
       (pwRef.current?.children[1].children[0] as HTMLElement).focus()
-      alert('새 비밀번호를 입력해주세요')
+      setAlert('새 비밀번호를 입력해주세요')
       return false
     }
     if(pwCheck === "") {
       (pwCheckRef.current?.children[1].children[0] as HTMLElement).focus()
-      alert('새 비밀번호 확인을 입력해주세요')
+      setAlert('새 비밀번호 확인을 입력해주세요')
       return false
-    } 
+    }
+    if(pwCheck !== pw) {
+      setAlert("비밀번호가 일치하지 않습니다.")
+      return false
+    }
     handlePwSubmit()
   }
 
@@ -124,11 +130,11 @@ const CLoginPw = () => {
     })
     .then((res) => {
       if(res.data.code === 200) {
-        alert('인증번호가 발송되었습니다. 3분안에 인증번호를 입력해 주세요.') 
+        setAlert('인증번호가 발송되었습니다. 3분안에 인증번호를 입력해 주세요.') 
         setCertificateNum(!certificateNum)    
         timerStart()
       }else{
-        alert('가입시 입력하신 회원정보가 맞는지 다시 한번 확인해주세요.');
+        setAlert('가입시 입력하신 회원정보가 맞는지 다시 한번 확인해주세요.');
         return false
       }
     })
@@ -151,7 +157,7 @@ const CLoginPw = () => {
     })
     .then((res) => {
       if(res.data.code === 200 && intervalRef.current !== null) {
-        alert('인증이 완료되었습니다.')  
+        setAlert('인증이 완료되었습니다.')  
         setId(res.data.result)
         clearInterval(intervalRef.current)
         setMin(3)
@@ -161,7 +167,7 @@ const CLoginPw = () => {
         setCertificateNum(!certificateNum)   
         return false
       }else{
-        alert('인증이 실패하였습니다.')
+        setAlert('인증이 실패하였습니다.')
         return setCertificateNum(!certificateNum) 
       }
     })
@@ -184,15 +190,15 @@ const CLoginPw = () => {
     })
     .then((res) => {
       if(res.data.code === 200) { 
-        navigate('/login')
-        alert('수정이 완료되었습니다.')
+        setAlert('수정이 완료되었습니다.')
+        setAlertStatus("possible")
         return false
       }else{
-        alert('수정이 실패하였습니다.') 
+        setAlert('수정이 실패하였습니다.') 
         return false
       }
     })
-  },[id, navigate, pw])
+  },[id, pw])
  
   return (
     <CModal  
@@ -324,6 +330,23 @@ const CLoginPw = () => {
             } 
             <CButton large type="blue" onClick={validationCheck3}>확인</CButton>
           </Box>
+        } 
+        { 
+          <CAlert
+            open={alert !== ""} 
+            onClose={() => {  
+              setAlert("")
+              switch(alertStatus) {
+                case "possible":
+                  navigate('/login')
+                  return false 
+                default:
+                  return false
+              }
+            }} 
+          >
+            <>{alert}</>
+          </CAlert>
         }
       </Box>
     </CModal>

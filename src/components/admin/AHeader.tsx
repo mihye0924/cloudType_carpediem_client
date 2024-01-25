@@ -30,7 +30,7 @@ const AHeader = () => {
 export default AHeader
 
 const Header = styled('header')(({theme}) => ({
-  borderBottom: theme.palette.background.underline
+  borderBottom: theme.palette.background.border
 }))   
 const Container = { 
   display: 'flex',

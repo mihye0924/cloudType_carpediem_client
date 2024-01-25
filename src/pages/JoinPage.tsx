@@ -5,6 +5,7 @@ import { useNavigate } from "react-router-dom";
 import { Box, TextField, styled } from '@mui/material';
 import { ChangeEvent, useRef, useState } from 'react';  
 import axios from 'axios';
+import CAlert from '@/components/CAlert';
 
 // page
 const JoinPage = () => { 
@@ -32,78 +33,80 @@ const JoinPage = () => {
   const [birthText, setBirthText] = useState(false);
   const [phoneText, setPhoneText] = useState(false);
   const [emailText, setEmailText] = useState(false);
-  
+  const [alert, setAlert] = useState("")
+  const [alertStatus, setAlertStatus] = useState("") 
+
 
   // 유효성 검사
   const validationCheck = () => {
     if(id === ''){ 
       (idRef.current?.children[1].children[0] as HTMLElement).focus()
-      alert('아이디를 입력해주세요.')
+      setAlert('아이디를 입력해주세요.')
       return false
     }
     if(!idText){
       (idRef.current?.children[1].children[0] as HTMLElement).focus()
-      alert('아이디 4글자 이상 또는 12글자 이하로 작성해주세요.')
+      setAlert('아이디 4글자 이상 또는 12글자 이하로 작성해주세요.')
       return false
     }
     if(!idCheck){
       idCheckRef.current?.focus()
-      alert('아이디 중복확인을 해주세요.')
+      setAlert('아이디 중복확인을 해주세요.')
       return false
     } 
     if(pw === ''){
       (pwRef.current?.children[1].children[0] as HTMLElement).focus()
-      alert('비밀번호를 입력해주세요.')
+      setAlert('비밀번호를 입력해주세요.')
       return false
     }
     if(!pwText) {
       (pwRef.current?.children[1].children[0] as HTMLElement).focus()
-      alert('8글자 이상, 영문, 숫자, 특수문자로 입력해주세요.')
+      setAlert('8글자 이상, 영문, 숫자, 특수문자로 입력해주세요.')
       return false
     }
     if(pwCheck === ''){ 
       (pwCheckRef.current?.children[1].children[0] as HTMLElement).focus()
-      alert('재확인 비밀번호를 입력해주세요.')
+      setAlert('재확인 비밀번호를 입력해주세요.')
       return false
     }
     if(pw !== pwCheck){
       (pwCheckRef.current?.children[1].children[0] as HTMLElement).focus()
-      alert('비밀번호가 일치하지 않습니다.')
+      setAlert('비밀번호가 일치하지 않습니다.')
       return false
     }
     if(name === ''){ 
       (nameRef.current?.children[1].children[0] as HTMLElement).focus()
-      alert('이름을 입력해주세요.')
+      setAlert('이름을 입력해주세요.')
       return false
     }
     if(birth === ''){ 
       (birthRef.current?.children[1].children[0] as HTMLElement).focus()
-      alert('생년월일을 입력해주세요.')
+      setAlert('생년월일을 입력해주세요.')
       return false
     }
     if(!birthText){
       (birthRef.current?.children[1].children[0] as HTMLElement).focus()
-      alert('생년월일이 일치하지 않습니다.')
+      setAlert('생년월일이 일치하지 않습니다.')
       return false
     }
     if(phone === ''){ 
       (phoneRef.current?.children[1].children[0] as HTMLElement).focus()
-      alert('전화번호를 입력해주세요.')
+      setAlert('전화번호를 입력해주세요.')
       return false
     }
     if(!phoneText){
       (phoneRef.current?.children[1].children[0] as HTMLElement).focus()
-      alert('전화번호가 일치하지 않습니다.')
+      setAlert('전화번호가 일치하지 않습니다.')
       return false
     }  
     if(email === ''){ 
       (emailRef.current?.children[1].children[0] as HTMLElement).focus()
-      alert('이메일을 입력해주세요.')
+      setAlert('이메일을 입력해주세요.')
       return false
     }
     if(!emailText){
       (emailRef.current?.children[1].children[0] as HTMLElement).focus()
-      alert('이메일이 일치하지 않습니다.')
+      setAlert('이메일이 일치하지 않습니다.')
       return false
     }
     return postData()
@@ -127,12 +130,12 @@ const JoinPage = () => {
       withCredentials: true
     }).then((response) => { 
       if(response.data.code === 200) {
-        alert('회원가입에 성공하였습니다.') 
-        navigate('/login')
+        setAlert('회원가입에 성공하였습니다.') 
+        setAlertStatus("joinSuccess")
         return false
       }else{
-        alert('회원가입에 실패하였습니다.')
-        navigate('/join')
+        setAlert('회원가입에 실패하였습니다.')
+        setAlertStatus("joinFailed")
         return false
       }
     })
@@ -142,7 +145,7 @@ const JoinPage = () => {
   // 아이디 중복체크
   const handleIdCheck = async() => { 
     if(id === "") {
-      alert('아이디를 입력해주세요.')
+      setAlert('아이디를 입력해주세요.')
       return false
     }
     await axios({
@@ -153,11 +156,11 @@ const JoinPage = () => {
     .then((response) => {  
       if(response.data.code === 200){
         setIdCheck(true)
-        alert('사용 가능한 아이디입니다.')
+        setAlert('사용 가능한 아이디입니다.')
         return false
       }else{
         setIdCheck(false)
-        alert('중복된 아이디입니다.')
+        setAlert('중복된 아이디입니다.')
         return false
       }
     })
@@ -339,6 +342,26 @@ const JoinPage = () => {
           회원가입
         </CButton>
       </Box>
+        { 
+          <CAlert
+            open={alert !== ""} 
+            onClose={() => {  
+              setAlert("")
+              switch(alertStatus) {
+                case "joinSuccess":
+                  navigate(`/login`)
+                  return false 
+                case "joinFailed":
+                  navigate(`/join`) 
+                  return false 
+                default:
+                  return false
+              }
+            }} 
+          >
+            <>{alert}</>
+          </CAlert>
+        }
     </CModal>
   )
 } 

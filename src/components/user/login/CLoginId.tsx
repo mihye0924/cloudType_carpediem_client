@@ -4,6 +4,7 @@ import { Box, TextField, styled } from '@mui/material';
 import { ChangeEvent, useCallback, useEffect, useRef, useState } from 'react';  
 import { useNavigate } from 'react-router';
 import axios from 'axios';  
+import CAlert from '@/components/CAlert';
    
  
 // page
@@ -17,14 +18,14 @@ const CLoginId = () => {
   const [min, setMin] = useState(3);
   const [sec, setSec] = useState(0)
   const [id, setId] = useState("")
-  const navigate = useNavigate()   
-
+  const navigate = useNavigate()    
+  const [alert, setAlert] = useState("") 
+  
   const time = useRef<number>(180)
   const nameRef = useRef<HTMLInputElement>(null)
   const phoneRef = useRef<HTMLInputElement>(null)
   const checkNumRef = useRef<HTMLInputElement>(null) 
   const intervalRef = useRef<ReturnType<typeof setInterval> | null>(null)
-  
   
   // 타이머 텍스트
  const handleTimerNum = () => {  
@@ -44,12 +45,12 @@ const CLoginId = () => {
   const validationCheck = () => {
     if(name === "") {
       (nameRef.current?.children[1].children[0] as HTMLElement).focus()
-      alert('이름을 입력해주세요')
+      setAlert('이름을 입력해주세요')
       return false
     }
     if(phone === "") {
       (phoneRef.current?.children[1].children[0] as HTMLElement).focus()
-      alert('전화번호를 입력해주세요')
+      setAlert('전화번호를 입력해주세요')
       return false
     } 
     idCheckSubmit()
@@ -59,7 +60,7 @@ const CLoginId = () => {
   const validationCheck2 = () => { 
     if(checkNum === "") {
       (checkNumRef.current?.children[1].children[0] as HTMLElement).focus()
-      alert('인증번호 6자리를 입력해주세요.')
+      setAlert('인증번호 6자리를 입력해주세요.')
       return false
     }
     handleCertificateNumberCheck()
@@ -87,11 +88,11 @@ const CLoginId = () => {
     })
     .then((res) => {
       if(res.data.code === 200) {
-        alert('인증번호가 발송되었습니다. 3분안에 인증번호를 입력해 주세요.')
+        setAlert('인증번호가 발송되었습니다. 3분안에 인증번호를 입력해 주세요.')
         setCertificateNum(!certificateNum)    
         timerStart()
       }else{
-        alert('가입시 입력하신 회원정보가 맞는지 다시 한번 확인해주세요.');
+        setAlert('가입시 입력하신 회원정보가 맞는지 다시 한번 확인해주세요.');
         return false
       }
     })
@@ -114,8 +115,7 @@ const CLoginId = () => {
     })
     .then((res) => {
       if(res.data.code === 200 && intervalRef.current !== null) {
-        alert('인증이 완료되었습니다.')
-        console.log(res.data)
+        setAlert('인증이 완료되었습니다.') 
         setId(res.data.result)
         clearInterval(intervalRef.current)
         setMin(3)
@@ -125,7 +125,7 @@ const CLoginId = () => {
         setCertificateNum(!certificateNum)   
         return false
       }else{
-        alert('인증이 실패하였습니다.')
+        setAlert('인증이 실패하였습니다.')
         return setCertificateNum(!certificateNum) 
       }
     })
@@ -137,7 +137,7 @@ const CLoginId = () => {
       clearInterval(intervalRef.current)
       setMin(3)
       setSec(0)
-      alert('시간이 초과되었습니다.') 
+      setAlert('시간이 초과되었습니다.') 
       time.current = 180
       setCertificateNum(!certificateNum)   
     }
@@ -245,6 +245,16 @@ const CLoginId = () => {
             </Box>
             <CButton large type="blue" onClick={() => navigate('/login')}>로그인으로 돌아가기</CButton>
           </Box>
+        }
+         { 
+          <CAlert
+            open={alert !== ""} 
+            onClose={() => {  
+              setAlert("") 
+            }} 
+          >
+            <>{alert}</>
+          </CAlert>
         }
       </Box>
     </CModal>

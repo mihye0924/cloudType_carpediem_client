@@ -1,6 +1,7 @@
-import { atom } from "recoil";
+import { atom } from "recoil"; 
+ 
 
-export interface listType { 
+export interface listType {
   user_id: string;
   account_no: number;
   account_name: string;
@@ -17,11 +18,17 @@ export interface listType {
     img: string
   }[];
   list_content: string;
-  list_good: number;
+  list_good_count: number;
+  list_good_save: {
+    good_no: number; 
+    account_name: string,
+    good_checked: boolean;
+  }[],
+  list_bookmark: number;
   list_reply: object;
   list_date: Date
 }
-
+ 
 export const listStatus = atom<listType[]>({
   key: "listStatus",
   default: [
@@ -44,9 +51,18 @@ export const listStatus = atom<listType[]>({
         }
       ],
       list_content: "",
-      list_good: 0,
+      list_good_count: 0,
+      list_good_save: [
+        {
+          good_no: 0, 
+          account_name: "",
+          good_checked: false
+        }
+      ],
+      list_bookmark: 0,
       list_reply: {},
       list_date: new Date
     }
   ] 
-})
+}) 
+ 

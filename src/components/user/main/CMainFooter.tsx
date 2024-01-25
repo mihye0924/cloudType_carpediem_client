@@ -1,15 +1,17 @@
 import CButton from "@/components/CButton" 
-import { WriteModalStatus, profileModalStatus } from "@/recoil/atoms/modalStatus"
+import { writeModalStatus } from "@/recoil/atoms/modalStatus"
 import { profileStatus } from "@/recoil/atoms/profileStatus"
 import { HomeOutlined, AddBoxOutlined, BookmarkBorderOutlined, EmailOutlined } from "@mui/icons-material"
-import { Box, styled } from "@mui/material"   
-import { useRecoilState, useRecoilValue, useSetRecoilState } from "recoil"
+import { Box, styled } from "@mui/material"    
+import { useLocation, useNavigate } from "react-router"
+import { useRecoilValue, useSetRecoilState } from "recoil"
  
 
 const CMainFooter = () => { 
-  const setWrite = useSetRecoilState(WriteModalStatus); // 프로필 편집
-  const profile = useRecoilValue(profileStatus); 
-  const [edit, setEdit] = useRecoilState(profileModalStatus);
+  const setWrite = useSetRecoilState(writeModalStatus); // 프로필 편집
+  const profile = useRecoilValue(profileStatus);  
+  const navigate = useNavigate()
+  const path = useLocation().pathname.split('/')[1];
 
   return (
     <Section>
@@ -32,8 +34,7 @@ const CMainFooter = () => {
             <AddBoxOutlined />
           </CButton>
           <CButton 
-            onClick={() => {
-              setEdit(!edit)
+            onClick={() => { navigate(`/${path}`)
             }}
           >
             <Box>
@@ -61,7 +62,7 @@ export default CMainFooter
 
 const Section = styled('section')(({theme}) => ({
   position: 'fixed',
-  borderTop: theme.palette.background.underline,
+  borderTop: theme.palette.background.border,
   bottom: 0,
   width: '100%',
   backgroundColor: '#fff',

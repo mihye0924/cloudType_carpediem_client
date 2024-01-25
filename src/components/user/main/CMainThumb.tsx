@@ -535,7 +535,7 @@ const ThumbFuctionBox2 = {
 const ThumbFuctionBox2Con = {
   '& p': {
     margin: '15px 0',
-    height: '15px',
+    height: '18px',
     color: 'text.default',
     textOverflow: 'ellipsis',
     overflow: 'hidden',
@@ -649,7 +649,6 @@ const textAreaBox = {
     borderRadius: '5px',
     height: '90px !important',
     border: '1px solid #f1f1f1',
-    borderRadius: '5px',
     resize: 'none',
     '&:focus': {
       outline: '1px solid #000 !important',

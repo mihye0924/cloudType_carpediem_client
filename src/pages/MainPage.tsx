@@ -907,9 +907,10 @@ const modalStyle3 = {
       },
       '&:last-of-type': {
         overflowY: 'auto',
-        position: 'relative',
+        // position: 'relative',
         maxWidth: '100%',
         height: 'calc( 840px - 50px )', 
+        maxHeight: 'calc( 100vh - 50px )',
         display: 'flex',
         '& svg': { 
           fontSize: '24px',
@@ -926,8 +927,7 @@ const modalStyle3 = {
   },
 }
 
-// 메뉴
-
+// 메뉴 
 const MenuSection = styled('div')(({theme}) => ({ 
   padding: '20px 10px',
   '& h1': {

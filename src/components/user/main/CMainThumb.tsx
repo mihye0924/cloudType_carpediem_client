@@ -267,103 +267,105 @@ const CMainThumb = () => {
                     }
                   </Box>
                 </ThumbBox>  
-                <Box>
-                  <Box sx={ThumbFuctionBox2Con}> 
-                    {
-                    updateForm ?
-                    <>
-                      <Box sx={textAreaBox}>
-                        <TextareaAutosize    
-                          ref={contentRef}  
-                          aria-label="textarea" placeholder="문구를 입력해주세요..."
-                          value={content} 
-                          onChange={(event: ChangeEvent<HTMLTextAreaElement>) => setContent(event.target.value)}
-                          maxLength={500} 
-                        />
-                        <span>{content.length} / 500</span>
-                      </Box>
-                      <CButton type="blue" style={{ marginLeft: '15px'}} onClick={() => handleListUpdate(item.account_name, item.list_no, content)}>수정하기</CButton> 
-                    </>
-                    :
-                    <ContentBox2>
-                      <Box> 
-                        <Box sx={ListImgBox}>
-                          <img src={
-                              item.account_profile === "profile-dummy.svg" ?
-                              "/assets/images/profile-dummy.svg":
-                              `${import.meta.env.VITE_BACK_URL}/uploads/profile/${item.account_profile }`
-                              }
-                            alt="profile"
-                            />  
-                        </Box>
-                        <p>{path.split('/')[1]}</p>
-                      </Box>
-                      <p className={more ? 'active':''}>{content}</p>
+                <ReplyBox>
+                  <Box>
+                    <Box sx={ThumbFuctionBox2Con}> 
                       {
-                        item.list_content.length > 100 &&
-                        <CButton type="blue" onClick={() => setMore(!more)}>{!more ? "더보기":"접기"}</CButton>
-                      }
-                    </ContentBox2>
-                    }
-                  </Box>
-                </Box>
-                <InnerBox>  
-                  <Box sx={ThumbFuctionBox1}>  
-                    <Box>  
-                     {
-                      like ?
-                      <IconButton    
-                        disableRipple 
-                        sx={HeartIcon} 
-                        aria-label="heart"  
-                        onClick={() => handleLikeRemove(item.account_name, item.list_no)}
-                      > 
-                        <Favorite sx={{fontSize: '28px'}} />
-                      </IconButton> 
+                      updateForm ?
+                      <>
+                        <Box sx={textAreaBox}>
+                          <TextareaAutosize    
+                            ref={contentRef}  
+                            aria-label="textarea" placeholder="문구를 입력해주세요..."
+                            value={content} 
+                            onChange={(event: ChangeEvent<HTMLTextAreaElement>) => setContent(event.target.value)}
+                            maxLength={500} 
+                          />
+                          <span>{content.length} / 500</span>
+                        </Box>
+                        <CButton type="blue" style={{ marginLeft: '15px'}} onClick={() => handleListUpdate(item.account_name, item.list_no, content)}>수정하기</CButton> 
+                      </>
                       :
-                      <IconButton     
-                        disableRipple
-                        sx={HeartIcon} 
-                        aria-label="heart"  
-                        onClick={() => handleLike(item.account_name, item.list_no)}
-                      > 
-                        <FavoriteBorder sx={{fontSize: '28px'}} />
-                      </IconButton> 
-                     }
-                      <IconButton 
-                        disableRipple
-                        sx={ReplyIcon}  
-                        aria-label="reply" 
-                        onClick={() => {console.log('동작')}}
-                      > 
-                        <ChatBubbleOutline sx={{fontSize: '28px'}} />
-                      </IconButton>
-                    </Box>
-                    <Box> 
-                      <IconButton 
-                        disableRipple
-                        sx={CaptionIcon}  
-                        aria-label="caption" 
-                        onClick={() => console.log('북마크')}
-                      > 
-                        <TurnedInNot sx={{fontSize: '28px'}} />
-                      </IconButton>
+                      <ContentBox2>
+                        <Box> 
+                          <Box sx={ListImgBox}>
+                            <img src={
+                                item.account_profile === "profile-dummy.svg" ?
+                                "/assets/images/profile-dummy.svg":
+                                `${import.meta.env.VITE_BACK_URL}/uploads/profile/${item.account_profile }`
+                                }
+                              alt="profile"
+                              />  
+                          </Box>
+                          <p>{path.split('/')[1]}</p>
+                        </Box>
+                        <p className={more ? 'active':''}>{content}</p>
+                        {
+                          item.list_content.length > 100 &&
+                          <CButton type="blue" onClick={() => setMore(!more)}>{!more ? "더보기":"접기"}</CButton>
+                        }
+                      </ContentBox2>
+                      }
                     </Box>
                   </Box>
-                  <Box sx={ThumbFuctionBox2}>
-                    <CButton onClick={() => console.log('좋아요 00 개')}>좋아요 {likeCount} 개</CButton>
-                  </Box>
-                  <Box sx={ReplyBox}>
-                    <TextareaAutosize    
-                      ref={replyRef}  
-                      aria-label="textarea" placeholder="댓글달기...."
-                      value={reply} 
-                      onChange={(event: ChangeEvent<HTMLTextAreaElement>) => setReply(event.target.value)}
-                      maxLength={500} 
-                    />
-                    <CButton type="blue" onClick={() => console.log('게시')}>게시</CButton>
-                  </Box>
-                </InnerBox>
+                </ReplyBox>
+                  <InnerBox>  
+                    <Box sx={ThumbFuctionBox1}>  
+                      <Box>  
+                      {
+                        like ?
+                        <IconButton    
+                          disableRipple 
+                          sx={HeartIcon} 
+                          aria-label="heart"  
+                          onClick={() => handleLikeRemove(item.account_name, item.list_no)}
+                        > 
+                          <Favorite sx={{fontSize: '28px'}} />
+                        </IconButton> 
+                        :
+                        <IconButton     
+                          disableRipple
+                          sx={HeartIcon} 
+                          aria-label="heart"  
+                          onClick={() => handleLike(item.account_name, item.list_no)}
+                        > 
+                          <FavoriteBorder sx={{fontSize: '28px'}} />
+                        </IconButton> 
+                      }
+                        <IconButton 
+                          disableRipple
+                          sx={ReplyIcon}  
+                          aria-label="reply" 
+                          onClick={() => {console.log('동작')}}
+                        > 
+                          <ChatBubbleOutline sx={{fontSize: '28px'}} />
+                        </IconButton>
+                      </Box>
+                      <Box> 
+                        <IconButton 
+                          disableRipple
+                          sx={CaptionIcon}  
+                          aria-label="caption" 
+                          onClick={() => console.log('북마크')}
+                        > 
+                          <TurnedInNot sx={{fontSize: '28px'}} />
+                        </IconButton>
+                      </Box>
+                    </Box>
+                    <Box sx={ThumbFuctionBox2}>
+                      <CButton onClick={() => console.log('좋아요 00 개')}>좋아요 {likeCount} 개</CButton>
+                    </Box>
+                    <Box sx={ReplyWriteBox}>
+                      <TextareaAutosize    
+                        ref={replyRef}  
+                        aria-label="textarea" placeholder="댓글달기...."
+                        value={reply} 
+                        onChange={(event: ChangeEvent<HTMLTextAreaElement>) => setReply(event.target.value)}
+                        maxLength={500} 
+                      />
+                      <CButton type="blue" onClick={() => console.log('게시')}>게시</CButton>
+                    </Box>
+                  </InnerBox>
               </ContentBox>
            </MainBox>
           )
@@ -395,7 +397,7 @@ const CMainThumb = () => {
 export default CMainThumb
 const MainBox = styled('div')(() => ({
   width: '100%',
-  height: '100%',
+  // height: '100%',
   display: 'inline-flex',
   flexWrap: 'wrap'
 })) 
@@ -436,17 +438,12 @@ const FollowButton = {
   fontSize: '12px',
   lineHeight: 2
 }
-const SwiperBox  = styled('div')(({theme}) => ({   
-  position: 'relative',
+const SwiperBox  = styled('div')(({theme}) => ({    
   overflow: 'hidden',
   width: '100%', 
   flex: 1,
-  flexBasis: '780px', 
-  maxHeight: 'calc( 840px - 50px)',
-  borderRight: theme.palette.background.border,
-  '.swiper': {
-    height: '100%'
-  },
+  flexBasis: '780px',  
+  borderRight: theme.palette.background.border, 
   '.swiper-slide': {   
     'button': {
       padding:0,
@@ -454,8 +451,8 @@ const SwiperBox  = styled('div')(({theme}) => ({
       borderRadius: 0,
       position:'relative',
       overflow: 'hidden',
-      width: '100%',  
-      height: '100%',
+      width: '100%',   
+      height: 'calc( 840px - 50px)',
       '&:hover': {
         backgroundColor: 'transparent',
       },
@@ -480,10 +477,8 @@ const SwiperBox  = styled('div')(({theme}) => ({
 }))  
 const ContentBox  = styled('div')(() => ({ 
   flex: 1,
-  width: '100%', 
-  height: '100%',
+  width: '100%',  
   flexBasis: '500px',
-  position: 'relative',
 })) 
 
 const ContentBox2 = styled('div')(({theme}) => ({ 
@@ -501,14 +496,24 @@ const ContentBox2 = styled('div')(({theme}) => ({
     }
   }
 })) 
-const InnerBox = styled('div')(({theme}) => ({
-  position:'absolute',
-  width: '100%',
-  bottom: 0,
+const InnerBox = styled('div')(({theme}) => ({ 
+  width: '100%', 
   borderTop: theme.palette.background.border,
   padding: '15px',
   '.swiper-pagination-bullets': {
     top: 'var(--swiper-pagination-top, 10px)'
+  }
+})) 
+
+const ReplyBox = styled('div')(() => ({
+  position: 'relative',
+  height: '100%',
+  maxHeight: 'calc( 100vh - 685px )',
+  minHeight:' 500px',
+  // border: '1px solid white',
+  overflowY: 'auto',
+  '&::-webkit-scrollbar':{
+    width: '0',
   }
 })) 
 const ThumbFuctionBox1 = {
@@ -535,7 +540,7 @@ const ThumbFuctionBox2 = {
 const ThumbFuctionBox2Con = {
   '& p': {
     margin: '15px 0',
-    height: '18px',
+    height: '15px',
     color: 'text.default',
     textOverflow: 'ellipsis',
     overflow: 'hidden',
@@ -663,7 +668,7 @@ const textAreaBox = {
   }
 }
 
-const ReplyBox = {
+const ReplyWriteBox = {
   display: 'flex',
   gap: '10px',
   'textarea': {

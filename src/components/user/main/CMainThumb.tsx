@@ -283,7 +283,7 @@ const CMainThumb = () => {
                           />
                           <span>{content.length} / 500</span>
                         </Box>
-                        <CButton type="blue" style={{ marginLeft: '15px'}} onClick={() => handleListUpdate(item.account_name, item.list_no, content)}>수정하기</CButton> 
+                        <CButton type="blue" style={ContentUpdateButton} onClick={() => handleListUpdate(item.account_name, item.list_no, content)}>수정하기</CButton> 
                       </>
                       :
                       <ContentBox2>
@@ -396,8 +396,8 @@ const CMainThumb = () => {
 
 export default CMainThumb
 const MainBox = styled('div')(() => ({
-  width: '100%',
-  // height: '100%',
+  width: '100%', 
+  height: '100%',
   display: 'inline-flex',
   flexWrap: 'wrap'
 })) 
@@ -442,6 +442,7 @@ const SwiperBox  = styled('div')(({theme}) => ({
   overflow: 'hidden',
   width: '100%', 
   flex: 1,
+  position: 'relative',
   flexBasis: '780px',  
   borderRight: theme.palette.background.border, 
   '.swiper-slide': {   
@@ -507,7 +508,7 @@ const InnerBox = styled('div')(({theme}) => ({
 
 const ReplyBox = styled('div')(() => ({
   position: 'relative',
-  height: '100%',
+  height: 'calc(100% - 250px)',
   maxHeight: 'calc( 100vh - 685px )',
   minHeight:' 500px',
   // border: '1px solid white',
@@ -537,10 +538,12 @@ const ThumbFuctionBox2 = {
     }
   } 
 } 
+const ContentUpdateButton = {
+  marginLeft: '10px',
+}
 const ThumbFuctionBox2Con = {
   '& p': {
-    margin: '15px 0',
-    height: '20px',
+    margin: '15px 0', 
     color: 'text.default',
     textOverflow: 'ellipsis',
     overflow: 'hidden',

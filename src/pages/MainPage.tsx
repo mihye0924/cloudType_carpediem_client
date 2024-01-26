@@ -255,14 +255,24 @@ const MainPage = () => {
     .catch((err) => console.log(err)) 
   },[setImgSavePath]); 
 
-  useEffect(() => {   
+  // 리로드
+  const reload = useCallback(() => { 
+      navigate(`/${path}`) 
+  },[navigate, path])
+
+  useEffect(() => {    
+    window.addEventListener('load', () => reload())
+
     setIsLoading(false)
     getProfileImgData()
     getListData()    
     setName(profile.account_name)
     setWebsite(profile.account_link)
     setIntro(profile.account_info)  
-  },[getListData, getProfileImgData, navigate, path, profile.account_info, profile.account_link, profile.account_name])
+    return (() => {
+      window.addEventListener('load', () => reload())
+    })
+  },[getListData, getProfileImgData, navigate, path, profile.account_info, profile.account_link, profile.account_name, reload])
  
 
   return (

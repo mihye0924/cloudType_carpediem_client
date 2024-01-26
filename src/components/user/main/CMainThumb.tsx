@@ -283,7 +283,7 @@ const CMainThumb = () => {
                           />
                           <span>{content.length} / 500</span>
                         </Box>
-                        <CButton type="blue" style={ContentUpdateButton} onClick={() => handleListUpdate(item.account_name, item.list_no, content)}>수정하기</CButton> 
+                        <CButton type="blueBorder" style={ContentUpdateButton} onClick={() => handleListUpdate(item.account_name, item.list_no, content)}>수정하기</CButton> 
                       </>
                       :
                       <ContentBox2>
@@ -302,7 +302,7 @@ const CMainThumb = () => {
                         <p className={more ? 'active':''}>{content}</p>
                         {
                           item.list_content.length > 100 &&
-                          <CButton type="blue" onClick={() => setMore(!more)}>{!more ? "더보기":"접기"}</CButton>
+                          <CButton type="blueBorder" onClick={() => setMore(!more)}>{!more ? "더보기":"접기"}</CButton>
                         }
                       </ContentBox2>
                       }
@@ -430,7 +430,7 @@ const ListImgBox =  {
   'img': {
     width: '100%',
     objectFit: 'cover'
-  },
+  }
 }
 const FollowButton = {
   padding: '0 5px',
@@ -480,6 +480,7 @@ const ContentBox  = styled('div')(() => ({
   flex: 1,
   width: '100%',  
   flexBasis: '500px',
+  position: 'relative',
 })) 
 
 const ContentBox2 = styled('div')(({theme}) => ({ 
@@ -495,6 +496,9 @@ const ContentBox2 = styled('div')(({theme}) => ({
       marginLeft: '10px',
       padding: 0
     }
+  },
+  '.MuiButton-root': {
+    color: '#2d4b97'
   }
 })) 
 const InnerBox = styled('div')(({theme}) => ({ 
@@ -539,7 +543,10 @@ const ThumbFuctionBox2 = {
   } 
 } 
 const ContentUpdateButton = {
-  marginLeft: '10px',
+  marginLeft: '10px', 
+  '&.MuiButton-root': {
+    color: '#2d4b97 !important',
+  }
 }
 const ThumbFuctionBox2Con = {
   '& p': {

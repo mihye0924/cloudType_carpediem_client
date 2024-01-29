@@ -321,7 +321,7 @@ const MainPage = () => {
             write.step === 1 &&
             <Box sx={imgBox}>
               <FilterOutlined />
-              <p>사진과 동영상을 여기에 끌어다 놓으세요</p>
+              <p>사진과 동영상을 올려주세요.</p>
               <Button 
                 component="label" 
                 disableRipple 

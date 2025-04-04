@@ -1,5 +1,5 @@
-import { ProfileType } from "@/types/account";
 import { atom } from "recoil";
+import { ProfileType } from "@/recoil/types/profile";
 
 export const profileStatus = atom<ProfileType>({
   key: "profileStatus",

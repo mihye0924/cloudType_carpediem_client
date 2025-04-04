@@ -1,16 +1,9 @@
-import { DrawerProps } from "@/types/common";
-import { ChevronLeft } from "@mui/icons-material";
-import { IconButton, styled } from "@mui/material";
-import Drawer from "@mui/material/Drawer";
 import React from "react";
-
-const DrawerHeader = styled("div")(({ theme }) => ({
-  display: "flex",
-  alignItems: "center",
-  padding: theme.spacing(0, 1),
-  ...theme.mixins.toolbar,
-  justifyContent: "flex-start",
-}));
+import { ChevronLeft } from "@mui/icons-material";
+import { IconButton } from "@mui/material";
+import Drawer from "@mui/material/Drawer";
+import { DrawerHeader } from "@/components/drawer/styles";
+import { DrawerProps } from "@/components/drawer/types";
 
 const CDrawer = React.memo((props: DrawerProps) => {
   return (

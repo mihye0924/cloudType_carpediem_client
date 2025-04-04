@@ -1,13 +1,13 @@
 import { Routes, Route } from "react-router-dom";
-import LoginPage from "@/pages/LoginPage";
-import JoinPage from "@/pages/JoinPage";
-import MainPage from "@/pages/MainPage";
+import LoginPage from "@/pages/login";
+import JoinPage from "@/pages/join";
+import MainPage from "@/pages/main";
 import AdminMainPage from "@/pages/admin/AdminMainPage";
-import NotFoundPage from "@/pages/NotFoundPage";
-import CLoginId from "@/components/user/login/CLoginId";
+import NotFoundPage from "@/pages/not-found";
+import CLoginId from "@/components/user/login/id/index";
 import CLoginPw from "@/components/user/login/CLoginPw";
-import AccountPage from "@/pages/AccountPage";
-import Auth from "./Auth";
+import AccountPage from "@/pages/account/index";
+import Auth from "@/routes/Auth";
 
 const Router = () => {
   const AuthAdminMainPage = Auth(AdminMainPage, true, true);

@@ -1,5 +1,5 @@
-import { WriteType } from "@/types/common";
 import { atom } from "recoil";
+import { WriteType } from "@/recoil/types/modal";
 
 export const profileModalStatus = atom<boolean>({
   key: "profileModalStatus",

@@ -1,6 +1,5 @@
-import { listType } from "@/types/list";
 import { atom } from "recoil";
-
+import { listType } from "@/recoil/types/list";
 export const listStatus = atom<listType[]>({
   key: "listStatus",
   default: [
